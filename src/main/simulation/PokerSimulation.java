@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class PokerSimulation extends HandEvaluator {
     private Deck deck;
     private ArrayList<Player> players;
-    private Player winningPlayer;
+    private ArrayList<Player> winningPlayers;
     private Card[] communityCards;
 
     // Construct simulation
@@ -20,6 +20,7 @@ public class PokerSimulation extends HandEvaluator {
         deck = new Deck();
         players = new ArrayList<>();
         communityCards = new Card[5];
+        winningPlayers = new ArrayList<>();
     }
 
     // Setters
@@ -35,6 +36,10 @@ public class PokerSimulation extends HandEvaluator {
         this.communityCards = communityCards;
     }
 
+    public void setWinningPlayers(ArrayList<Player> winningPlayers) {
+        this.winningPlayers = winningPlayers;
+    }
+
     // Getters
     public Deck getDeck() {
         return deck;
@@ -46,6 +51,10 @@ public class PokerSimulation extends HandEvaluator {
 
     public Card[] getCommunityCards() {
         return communityCards;
+    }
+
+    public ArrayList<Player> getWinningPlayers() {
+        return winningPlayers;
     }
 
     // Initialize players in simulation and deal each player holeCards
@@ -112,5 +121,49 @@ public class PokerSimulation extends HandEvaluator {
         }
 
         return resultHand;
+    }
+
+    public void handleWinners() {
+        // For each player in game
+            // Evaluate hand (Check each handevaluator method)
+            // Store each players total hand strength (hand strength enum + high card)
+        // Check which player has highest value hand
+            // if two players handValue equal each other
+                // evaluate who has high card
+        // Assign winning player
+
+        for (int i = 0; i < players.size(); i++) {
+            Player currentPlayer = players.get(i);
+            ArrayList<Card> currentCardsALl = playerCardAll(currentPlayer.getHoleCards(), communityCards);
+
+            if (isRoyalFlush(currentCardsALl)) {
+                currentPlayer.getPlayerResults().setRank(HandRank.ROYAL_FLUSH);
+            }
+            else if (isStraightFlush(currentCardsALl)) {
+                currentPlayer.getPlayerResults().setRank(HandRank.STRAIGHT_FLUSH);
+            }
+            else if (isFourOfKind(currentCardsALl)) {
+                currentPlayer.getPlayerResults().setRank(HandRank.FOUR_OF_A_KIND);
+            }
+            else if (isFullHouse(currentCardsALl)) {
+                currentPlayer.getPlayerResults().setRank(HandRank.FULL_HOUSE);
+            }
+            else if (isFlush(currentCardsALl)) {
+                currentPlayer.getPlayerResults().setRank(HandRank.FLUSH);
+            }
+            else if (isStraight(currentCardsALl)) {
+                currentPlayer.getPlayerResults().setRank(HandRank.STRAIGHT);
+            }
+            else if (isThreeOfKind(currentCardsALl)) {
+                currentPlayer.getPlayerResults().setRank(HandRank.THREE_OF_A_KIND);
+            }
+            else if (isTwoPair(currentCardsALl)) {
+                currentPlayer.getPlayerResults().setRank(HandRank.TWO_PAIR);
+            }
+            else if (isOnePair(currentCardsALl)) {
+                currentPlayer.getPlayerResults().setRank(HandRank.PAIR);
+            }
+
+        }
     }
 }
