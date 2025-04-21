@@ -1,14 +1,14 @@
 package main.simulation;
 import main.model.*;
-import main.simulation.*;
+
 import java.util.ArrayList;
 
-public class SimulationResults {
+public class HandResult {
     private HandRank rank;
     private ArrayList<Card> bestFiveCards;
     private int handStrength;
 
-    public SimulationResults(HandRank rank, ArrayList<Card> bestFiveCards, int handStrength) {
+    public HandResult(HandRank rank, ArrayList<Card> bestFiveCards, int handStrength) {
         this.rank = rank;
         this.bestFiveCards = bestFiveCards;
         this.handStrength = handStrength;

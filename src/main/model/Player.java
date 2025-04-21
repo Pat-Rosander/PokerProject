@@ -1,14 +1,14 @@
 package main.model;
 
 import main.model.Card;
-import main.simulation.SimulationResults;
+import main.simulation.HandResult;
 
 import java.util.ArrayList;
 import java.util.List;
 public class Player {
     private String name;
     private ArrayList<Card> holeCards; // main.model.Player has a list of two hole cards
-    private SimulationResults playerResults;
+    private HandResult playerResults;
 
     public Player(String name, ArrayList<Card> holeCards) {
         this.name = name;
@@ -22,7 +22,7 @@ public class Player {
     public void setHoleCards(ArrayList<Card> holeCards) {
         this.holeCards = holeCards;
     }
-    public void setPlayerResults(SimulationResults playerResults) {
+    public void setPlayerResults(HandResult playerResults) {
         this.playerResults = playerResults;
     }
     //Getter methods
@@ -32,7 +32,7 @@ public class Player {
     public ArrayList<Card> getHoleCards() {
         return holeCards;
     }
-    public SimulationResults getPlayerResults() {
+    public HandResult getPlayerResults() {
         return playerResults;
     }
     //toString displays player info

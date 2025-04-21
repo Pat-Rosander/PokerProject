@@ -3,7 +3,6 @@ package main.simulation;
 import java.util.*;
 import main.model.*;
 
-//TODO Implement all methods in HandEvaluator
 //TODO Calculate each players bestHand
 //TODO Compare each players bestHand preflop, flop, turn, and river
 //TODO Determine winner
