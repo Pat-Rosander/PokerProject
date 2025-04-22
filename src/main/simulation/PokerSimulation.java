@@ -125,45 +125,68 @@ public class PokerSimulation extends HandEvaluator {
 
     public void handleWinners() {
         // For each player in game
-            // Evaluate hand (Check each handevaluator method)
+            // Evaluate hand (Check each HandEvaluator method)
             // Store each players total hand strength (hand strength enum + high card)
-        // Check which player has highest value hand
-            // if two players handValue equal each other
-                // evaluate who has high card
-        // Assign winning player
-
         for (int i = 0; i < players.size(); i++) {
             Player currentPlayer = players.get(i);
             ArrayList<Card> currentCardsALl = playerCardAll(currentPlayer.getHoleCards(), communityCards);
 
             if (isRoyalFlush(currentCardsALl)) {
                 currentPlayer.getPlayerResults().setRank(HandRank.ROYAL_FLUSH);
+                currentPlayer.getPlayerResults().setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
+                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
             }
             else if (isStraightFlush(currentCardsALl)) {
                 currentPlayer.getPlayerResults().setRank(HandRank.STRAIGHT_FLUSH);
+                currentPlayer.getPlayerResults().setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
+                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
             }
             else if (isFourOfKind(currentCardsALl)) {
                 currentPlayer.getPlayerResults().setRank(HandRank.FOUR_OF_A_KIND);
+                currentPlayer.getPlayerResults().setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
+                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
             }
             else if (isFullHouse(currentCardsALl)) {
                 currentPlayer.getPlayerResults().setRank(HandRank.FULL_HOUSE);
+                currentPlayer.getPlayerResults().setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
+                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
             }
             else if (isFlush(currentCardsALl)) {
                 currentPlayer.getPlayerResults().setRank(HandRank.FLUSH);
+                currentPlayer.getPlayerResults().setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
+                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
             }
             else if (isStraight(currentCardsALl)) {
                 currentPlayer.getPlayerResults().setRank(HandRank.STRAIGHT);
+                currentPlayer.getPlayerResults().setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
+                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
             }
             else if (isThreeOfKind(currentCardsALl)) {
                 currentPlayer.getPlayerResults().setRank(HandRank.THREE_OF_A_KIND);
+                currentPlayer.getPlayerResults().setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
+                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
             }
             else if (isTwoPair(currentCardsALl)) {
                 currentPlayer.getPlayerResults().setRank(HandRank.TWO_PAIR);
+                currentPlayer.getPlayerResults().setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
+                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
             }
             else if (isOnePair(currentCardsALl)) {
                 currentPlayer.getPlayerResults().setRank(HandRank.PAIR);
+                currentPlayer.getPlayerResults().setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
+                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
             }
-
         }
+
+        // Call comparePlayers()
+
+    }
+
+    public void comparePlayers() {
+
+        // Check which player has highest value hand
+        // if two players handValue equal each other
+        // evaluate who has high card
+        // Assign winning player
     }
 }
