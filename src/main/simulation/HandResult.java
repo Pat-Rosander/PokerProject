@@ -57,4 +57,9 @@ public class HandResult {
                 return -1;
         }
     }
+
+    @Override
+    public String toString() {
+        return bestFiveCards + " is a " + rank + "(" + handStrength + ")";
+    }
 }

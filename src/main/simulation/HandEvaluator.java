@@ -1,5 +1,6 @@
 package main.simulation;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import main.model.*;
 
@@ -349,5 +350,19 @@ public class HandEvaluator {
         }
 
         return false;
+    }
+
+    public ArrayList<Card> compareHighCard(ArrayList<Card> list1, ArrayList<Card> list2) {
+        if (list1.size() != list2.size()) {
+            return null;
+        }
+
+        HashMap<Card.Rank, Integer> myMap = new HashMap<>();
+        for (int i = 0; i < list1.size(); i++) {
+            Card.Rank rank = list1.get(i).getRank();
+            myMap.put(rank, myMap.getOrDefault(rank, 0) + 1);
+        }
+
+        return null;
     }
 }

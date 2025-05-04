@@ -13,6 +13,13 @@ public class Player {
     public Player(String name, ArrayList<Card> holeCards) {
         this.name = name;
         this.holeCards = holeCards;
+        playerResults = new HandResult(null, null, -1);
+    }
+
+    public Player() {
+        name = "";
+        holeCards = null;
+        playerResults = new HandResult(null, null, -1);
     }
 
     //Setter methods
