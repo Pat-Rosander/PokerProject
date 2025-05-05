@@ -1,11 +1,8 @@
 package main.simulation;
 
 import main.model.*;
-
 import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
 
 public class PokerSimulation extends HandEvaluator {
     private Deck deck;
@@ -19,6 +16,27 @@ public class PokerSimulation extends HandEvaluator {
         players = new ArrayList<>();
         communityCards = new Card[5];
         winningPlayers = new ArrayList<>();
+    }
+
+    public SimulationResults runSimulation(int numPlayers) {
+        SimulationResults results;
+
+        for (int i = 1; i <= numPlayers; i++) {
+            addPlayer("player" + i);
+        }
+        dealNextCommunityCard();
+        dealNextCommunityCard();
+        dealNextCommunityCard();
+        handleWinners();
+
+        if (winningPlayers.size() != 1) {
+            // TODO store results for tie case
+        }
+        else {
+            results = new SimulationResults(players, winningPlayers.get(0), winningPlayers.get(0).getHoleCards(), winningPlayers.get(0).getPlayerResults().getBestFiveCards());
+        }
+
+        return null;
     }
 
     // Setters
@@ -53,32 +71,6 @@ public class PokerSimulation extends HandEvaluator {
 
     public ArrayList<Player> getWinningPlayers() {
         return winningPlayers;
-    }
-
-    // Initialize players in simulation and deal each player holeCards
-    public void playerSetup() {
-        Scanner scnr = new Scanner(System.in);
-        int numPlayers = 0;
-        System.out.println("Please enter the number of players.");
-        do {
-            numPlayers = scnr.nextInt();
-            // Determine number of players in game
-            switch (numPlayers) {
-                case 0:
-                    System.out.println("Enter valid number of players.");
-                    break;
-                case 1:
-                    System.out.println("You need friends. Enter valid number of players.");
-                    break;
-            }
-        } while (numPlayers == 0 || numPlayers == 1);
-
-        for (int i = 1; i <= numPlayers; i++) {
-            String name = "player" + i;
-            System.out.println("Adding " + name);
-            addPlayer(name);
-        }
-        System.out.println(players);
     }
 
     public void addPlayer(String name) {
@@ -171,11 +163,10 @@ public class PokerSimulation extends HandEvaluator {
             }
         }
 
-        Player winningPlayer = comparePlayers();
-        winningPlayers.add(winningPlayer);
+        comparePlayers();
     }
 
-    private Player comparePlayers() {
+    private void comparePlayers() {
         Player highestValuePlayer = new Player();
         int highestValue = 0;
 
@@ -188,13 +179,17 @@ public class PokerSimulation extends HandEvaluator {
                 highestValue = currValue;
             }
             else if (highestValue == currValue) { // If 2 players have same hand rank
-                // Check who has high card
-
-                // if high cards equal each other, then return two players
+                ArrayList<Card> winningHand = compareHighCard(highestValuePlayer.getPlayerResults().getBestFiveCards(), currPlayer.getPlayerResults().getBestFiveCards());
+                if (winningHand == null) {
+                    winningPlayers.add(currPlayer);
+                    break;
+                }
+                else if (highestValuePlayer.getPlayerResults().getBestFiveCards() != winningHand) {
+                    highestValuePlayer = currPlayer;
+                    highestValue = currValue;
+                }
             }
-
         }
-
-        return highestValuePlayer;
+        winningPlayers.add(highestValuePlayer);
     }
 }

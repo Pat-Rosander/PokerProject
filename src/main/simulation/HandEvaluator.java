@@ -4,11 +4,6 @@ import java.lang.reflect.Array;
 import java.util.*;
 import main.model.*;
 
-//TODO Calculate each players bestHand
-//TODO Compare each players bestHand preflop, flop, turn, and river
-//TODO Determine winner
-//TODO Store results in SimulationResults
-
 public class HandEvaluator {
     /**
      * Combines players holeCards and community cards into ArrayList resultHand
@@ -352,17 +347,28 @@ public class HandEvaluator {
         return false;
     }
 
+    /**
+     *
+     * @param list1
+     * @param list2
+     * @return
+     */
     public ArrayList<Card> compareHighCard(ArrayList<Card> list1, ArrayList<Card> list2) {
-        if (list1.size() != list2.size()) {
-            return null;
+        if (list1.size() != 5 || list2.size() != 5) {
+            throw new IllegalArgumentException("Both hands must have 5 cards");
         }
 
-        HashMap<Card.Rank, Integer> myMap = new HashMap<>();
-        for (int i = 0; i < list1.size(); i++) {
-            Card.Rank rank = list1.get(i).getRank();
-            myMap.put(rank, myMap.getOrDefault(rank, 0) + 1);
-        }
+        list1 = sortByRank(list1);
+        list2 = sortByRank(list2);
 
+        for (int i = 0; i < 5; i++) {
+            if (list1.get(i).convertRankToNum() > list2.get(i).convertRankToNum()) {
+                return list1;
+            }
+            else if (list1.get(i).convertRankToNum() < list2.get(i).convertRankToNum()) {
+                return list2;
+            }
+        }
         return null;
     }
 }

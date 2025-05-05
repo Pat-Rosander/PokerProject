@@ -5,6 +5,7 @@ import main.simulation.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -217,5 +218,82 @@ class DeckTest {
         testHand.add(new Card(Card.Rank.KING, Card.Suit.SPADE));
 
         assertEquals(true, simulation.isOnePair(testHand));
+    }
+
+    @Test
+    @DisplayName("Test tie breaker case between two players with same value hand")
+    void checkTieBreakerBetweenTwoPlayers() {
+        // Add two players to simulation with exact same value holeCards
+        // p1 --> Ace of Hearts and Two of Spades
+        // p2 --> Ace of Spades and Two of Clubs
+        simulation.setPlayers(
+                new ArrayList<Player>(Arrays.asList(
+                        new Player("player1", new ArrayList<Card>(Arrays.asList(
+                                new Card(Card.Rank.ACE, Card.Suit.HEART),
+                                new Card(Card.Rank.TWO, Card.Suit.SPADE)
+                        ))
+                        ),
+                        new Player("player2", new ArrayList<Card>(Arrays.asList(
+                                new Card(Card.Rank.ACE, Card.Suit.SPADE),
+                                new Card(Card.Rank.TWO, Card.Suit.CLUB)
+                        ))
+                        )
+                ))
+        );
+        // Cards on table for tie-breaker case
+        simulation.setCommunityCards( new Card[] {
+                new Card(Card.Rank.KING, Card.Suit.HEART),
+                new Card(Card.Rank.SIX, Card.Suit.SPADE),
+                new Card(Card.Rank.SEVEN, Card.Suit.CLUB),
+                new Card(Card.Rank.EIGHT, Card.Suit.HEART),
+                new Card(Card.Rank.KING, Card.Suit.DIAMOND),
+        });
+        simulation.handleWinners();
+        // Two players with same value hand, and same value high card; therefore must be a tie
+        assertEquals(2, simulation.getWinningPlayers().size());
+    }
+    @Test
+    @DisplayName("Test high card between two players with same value hand")
+    void checkHighCardBetweenTwoPlayers() {
+        // Add two players to simulation with exact same value holeCards
+        // p1 --> Ace of Hearts and Two of Spades
+        // p2 --> Queen of Spades and Two of Clubs
+        simulation.setPlayers(
+                new ArrayList<Player>(Arrays.asList(
+                        new Player("player1", new ArrayList<Card>(Arrays.asList(
+                                new Card(Card.Rank.ACE, Card.Suit.HEART),
+                                new Card(Card.Rank.TWO, Card.Suit.SPADE)
+                        ))
+                        ),
+                        new Player("player2", new ArrayList<Card>(Arrays.asList(
+                                new Card(Card.Rank.QUEEN, Card.Suit.SPADE),
+                                new Card(Card.Rank.TWO, Card.Suit.CLUB)
+                        ))
+                        )
+                ))
+        );
+        // Cards on table for tie-breaker case
+        simulation.setCommunityCards( new Card[] {
+                new Card(Card.Rank.KING, Card.Suit.HEART),
+                new Card(Card.Rank.SIX, Card.Suit.SPADE),
+                new Card(Card.Rank.SEVEN, Card.Suit.CLUB),
+                new Card(Card.Rank.EIGHT, Card.Suit.HEART),
+                new Card(Card.Rank.KING, Card.Suit.DIAMOND),
+        });
+        simulation.handleWinners();
+
+        ArrayList<Card> actualWinningHand = simulation.getWinningPlayers().get(0).getPlayerResults().getBestFiveCards();
+        ArrayList<Card> winningHand = new ArrayList<Card>();
+        winningHand.add(new Card(Card.Rank.ACE, Card.Suit.HEART));
+        winningHand.add(new Card(Card.Rank.KING, Card.Suit.HEART));
+        winningHand.add(new Card(Card.Rank.KING, Card.Suit.DIAMOND));
+        winningHand.add(new Card(Card.Rank.EIGHT, Card.Suit.HEART));
+        winningHand.add(new Card(Card.Rank.SEVEN, Card.Suit.CLUB));
+        simulation.sortByRank(winningHand);
+
+        assertAll("High card comparison",
+                () -> assertEquals(winningHand, actualWinningHand),
+                () -> assertEquals(1, simulation.getWinningPlayers().size())
+        );
     }
 }
