@@ -8,35 +8,26 @@ public class PokerSimulation extends HandEvaluator {
     private Deck deck;
     private ArrayList<Player> players;
     private ArrayList<Player> winningPlayers;
-    private Card[] communityCards;
+    private ArrayList<Card> communityCards;
+    private SimulationResults results;
 
     // Construct simulation
     public PokerSimulation() {
         deck = new Deck();
         players = new ArrayList<>();
-        communityCards = new Card[5];
+        communityCards = new ArrayList<>(5);
         winningPlayers = new ArrayList<>();
     }
 
     public SimulationResults runSimulation(int numPlayers) {
-        SimulationResults results;
-
         for (int i = 1; i <= numPlayers; i++) {
             addPlayer("player" + i);
         }
         dealNextCommunityCard();
-        dealNextCommunityCard();
-        dealNextCommunityCard();
         handleWinners();
+        results = new SimulationResults(players, winningPlayers, communityCards);
 
-        if (winningPlayers.size() != 1) {
-            // TODO store results for tie case
-        }
-        else {
-            results = new SimulationResults(players, winningPlayers.get(0), winningPlayers.get(0).getHoleCards(), winningPlayers.get(0).getPlayerResults().getBestFiveCards());
-        }
-
-        return null;
+        return results;
     }
 
     // Setters
@@ -48,7 +39,7 @@ public class PokerSimulation extends HandEvaluator {
         this.players = players;
     }
 
-    public void setCommunityCards(Card[] communityCards) {
+    public void setCommunityCards(ArrayList<Card> communityCards) {
         this.communityCards = communityCards;
     }
 
@@ -65,7 +56,7 @@ public class PokerSimulation extends HandEvaluator {
         return players;
     }
 
-    public Card[] getCommunityCards() {
+    public ArrayList<Card> getCommunityCards() {
         return communityCards;
     }
 
@@ -81,14 +72,8 @@ public class PokerSimulation extends HandEvaluator {
 
     // Deal community cards
     public void dealNextCommunityCard() {
-        if (this.communityCards[0] == null) { //The flop
-            this.communityCards[0] = this.deck.getNextCard();
-            this.communityCards[1] = this.deck.getNextCard();
-            this.communityCards[2] = this.deck.getNextCard();
-        } else if (this.communityCards[3] == null) { //The turn
-            this.communityCards[3] = this.deck.getNextCard();
-        } else if (this.communityCards[4] == null) { //The river
-            this.communityCards[4] = this.deck.getNextCard();
+        while (communityCards.size() < 5) {
+            this.communityCards.add(this.deck.getNextCard());
         }
     }
 
@@ -191,5 +176,12 @@ public class PokerSimulation extends HandEvaluator {
             }
         }
         winningPlayers.add(highestValuePlayer);
+    }
+
+    @Override
+    public String toString() {
+        return "Players in simulation: " + players +
+                " Table cards: " + communityCards +
+                " Winner: " + winningPlayers;
     }
 }

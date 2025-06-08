@@ -241,13 +241,14 @@ class DeckTest {
                 ))
         );
         // Cards on table for tie-breaker case
-        simulation.setCommunityCards( new Card[] {
+        ArrayList<Card> communityCards = new ArrayList<>(Arrays.asList(
                 new Card(Card.Rank.KING, Card.Suit.HEART),
                 new Card(Card.Rank.SIX, Card.Suit.SPADE),
                 new Card(Card.Rank.SEVEN, Card.Suit.CLUB),
                 new Card(Card.Rank.EIGHT, Card.Suit.HEART),
-                new Card(Card.Rank.KING, Card.Suit.DIAMOND),
-        });
+                new Card(Card.Rank.KING, Card.Suit.DIAMOND)
+        ));
+        simulation.setCommunityCards(communityCards);
         simulation.handleWinners();
         // Two players with same value hand, and same value high card; therefore must be a tie
         assertEquals(2, simulation.getWinningPlayers().size());
@@ -255,7 +256,7 @@ class DeckTest {
     @Test
     @DisplayName("Test high card between two players with same value hand")
     void checkHighCardBetweenTwoPlayers() {
-        // Add two players to simulation with exact same value holeCards
+        // Add two players to simulation with same value hand and test winner logic based on higher card
         // p1 --> Ace of Hearts and Two of Spades
         // p2 --> Queen of Spades and Two of Clubs
         simulation.setPlayers(
@@ -273,13 +274,14 @@ class DeckTest {
                 ))
         );
         // Cards on table for tie-breaker case
-        simulation.setCommunityCards( new Card[] {
+        ArrayList<Card> communityCards = new ArrayList<>(Arrays.asList(
                 new Card(Card.Rank.KING, Card.Suit.HEART),
                 new Card(Card.Rank.SIX, Card.Suit.SPADE),
                 new Card(Card.Rank.SEVEN, Card.Suit.CLUB),
                 new Card(Card.Rank.EIGHT, Card.Suit.HEART),
-                new Card(Card.Rank.KING, Card.Suit.DIAMOND),
-        });
+                new Card(Card.Rank.KING, Card.Suit.DIAMOND)
+        ));
+        simulation.setCommunityCards(communityCards);
         simulation.handleWinners();
 
         ArrayList<Card> actualWinningHand = simulation.getWinningPlayers().get(0).getPlayerResults().getBestFiveCards();

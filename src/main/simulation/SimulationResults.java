@@ -1,21 +1,22 @@
 package main.simulation;
 import java.util.ArrayList;
+import java.util.List;
 import main.model.*;
 
 public class SimulationResults {
     private ArrayList<Player> playersList;
-    private Player winningPlayer;
+    private ArrayList<Player> winningPlayers;
     private ArrayList<Card> winningHoleCards;
     private ArrayList<Card> winningHand;
-    private int serial;
-    private static int nextSerialNumber = 1;
+    private List<Card> communityCards;
 
-    public SimulationResults(ArrayList<Player> playersList, Player winningPlayer, ArrayList<Card> winningHoleCards, ArrayList<Card> winningHand) {
+    public SimulationResults(ArrayList<Player> playersList, ArrayList<Player> winningPlayers, List<Card> communityCards) {
         this.playersList = playersList;
-        this.winningPlayer = winningPlayer;
-        this.winningHoleCards = winningHoleCards;
-        this.winningHand = winningHand;
-        this.serial = getNextSerialNumber();
+        this.winningPlayers = winningPlayers;
+        this.communityCards = communityCards;
+        this.winningHoleCards = null;
+        this.winningHand = null;
+        // TODO assign winningHoleCards and winningHand with a value
     }
 
     public ArrayList<Player> getPlayersList() {
@@ -26,12 +27,12 @@ public class SimulationResults {
         this.playersList = playersList;
     }
 
-    public Player getWinningPlayer() {
-        return winningPlayer;
+    public ArrayList<Player> getWinningPlayers() {
+        return winningPlayers;
     }
 
-    public void setWinningPlayer(Player winningPlayer) {
-        this.winningPlayer = winningPlayer;
+    public void setWinningPlayer(ArrayList<Player> winningPlayers) {
+        this.winningPlayers = winningPlayers;
     }
 
     public ArrayList<Card> getWinningHoleCards() {
@@ -50,7 +51,4 @@ public class SimulationResults {
         this.winningHand = winningHand;
     }
 
-    public static int getNextSerialNumber() {
-        return ++nextSerialNumber;
-    }
 }

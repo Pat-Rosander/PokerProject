@@ -12,18 +12,18 @@ public class HandEvaluator {
      * @param communityCards
      * @return resultHand
      */
-    public ArrayList<Card> playerCardAll(ArrayList<Card> holeCards, Card[] communityCards) {
+    public ArrayList<Card> playerCardAll(ArrayList<Card> holeCards, ArrayList<Card> communityCards) {
         ArrayList<Card> resultHand = new ArrayList<>();
-        List<Card> tempCardList = Arrays.asList(communityCards);
+        //List<Card> tempCardList = Arrays.asList(communityCards);
 
         for (int i = 0; i < holeCards.size(); i++) {
             if (holeCards.get(i) != null) {
                 resultHand.add(i, holeCards.get(i));
             }
         }
-        for (int j = 0; j < tempCardList.size(); j++) {
-            if (tempCardList.get(j) != null) {
-                resultHand.add(j + holeCards.size(), tempCardList.get(j));
+        for (int j = 0; j < communityCards.size(); j++) {
+            if (communityCards.get(j) != null) {
+                resultHand.add(j + holeCards.size(), communityCards.get(j));
             }
         }
         return resultHand;
