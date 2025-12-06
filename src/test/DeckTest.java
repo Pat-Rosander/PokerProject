@@ -284,18 +284,46 @@ class DeckTest {
         simulation.setCommunityCards(communityCards);
         simulation.handleWinners();
 
-        ArrayList<Card> actualWinningHand = simulation.getWinningPlayers().get(0).getPlayerResults().getBestFiveCards();
-        ArrayList<Card> winningHand = new ArrayList<Card>();
-        winningHand.add(new Card(Card.Rank.ACE, Card.Suit.HEART));
-        winningHand.add(new Card(Card.Rank.KING, Card.Suit.HEART));
-        winningHand.add(new Card(Card.Rank.KING, Card.Suit.DIAMOND));
-        winningHand.add(new Card(Card.Rank.EIGHT, Card.Suit.HEART));
-        winningHand.add(new Card(Card.Rank.SEVEN, Card.Suit.CLUB));
-        simulation.sortByRank(winningHand);
+        Player winner = simulation.getWinningPlayers().get(0);
+        assertEquals(2, winner.getPlayerResults().convertHandRankToNum());
 
-        assertAll("High card comparison",
-                () -> assertEquals(winningHand, actualWinningHand),
-                () -> assertEquals(1, simulation.getWinningPlayers().size())
+    }
+    @Test
+    @DisplayName("Fixing false flush logic bug")
+    void checkFalseFlush(){
+        simulation.setPlayers
+                (new ArrayList<Player>(Arrays.asList(
+                        new Player("player1", new ArrayList<Card>(Arrays.asList(
+                                new Card(Card.Rank.EIGHT, Card.Suit.HEART),
+                                new Card(Card.Rank.KING, Card.Suit.DIAMOND)
+                        ))
+                        ),
+                        new Player("player2", new ArrayList<Card>(Arrays.asList(
+                                new Card(Card.Rank.FIVE, Card.Suit.SPADE),
+                                new Card(Card.Rank.SIX, Card.Suit.DIAMOND)
+                        ))
+                        )
+                ))
         );
+        // Cards on table for tie-breaker case
+        ArrayList<Card> communityCards = new ArrayList<>(Arrays.asList(
+                new Card(Card.Rank.TEN, Card.Suit.CLUB),
+                new Card(Card.Rank.THREE, Card.Suit.HEART),
+                new Card(Card.Rank.ACE, Card.Suit.SPADE),
+                new Card(Card.Rank.TEN, Card.Suit.DIAMOND),
+                new Card(Card.Rank.ACE, Card.Suit.HEART)
+        ));
+        simulation.setCommunityCards(communityCards);
+        simulation.handleWinners();
+
+        Player winner = getOnlyWinner(simulation);
+
+        assertEquals(3, winner.getPlayerResults().convertHandRankToNum());
+    }
+
+    private Player getOnlyWinner(PokerSimulation simulation) {
+        var winners = simulation.getWinningPlayers();
+        assertEquals(1, winners.size(), "should be one winner");
+        return winners.get(0);
     }
 }

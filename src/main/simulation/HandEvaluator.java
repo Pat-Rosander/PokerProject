@@ -14,7 +14,6 @@ public class HandEvaluator {
      */
     public ArrayList<Card> playerCardAll(ArrayList<Card> holeCards, ArrayList<Card> communityCards) {
         ArrayList<Card> resultHand = new ArrayList<>();
-        //List<Card> tempCardList = Arrays.asList(communityCards);
 
         for (int i = 0; i < holeCards.size(); i++) {
             if (holeCards.get(i) != null) {
@@ -206,11 +205,12 @@ public class HandEvaluator {
      * @return Boolean
      */
     public Boolean isFourOfKind(ArrayList<Card> playerCardsAll) {
-        sortByMostPresentRank(playerCardsAll);
+        ArrayList<Card> copy = new ArrayList<>(playerCardsAll);
+        sortByMostPresentRank(copy);
 
-        if (playerCardsAll.get(0).getRank() == playerCardsAll.get(1).getRank() &&
-                playerCardsAll.get(1).getRank() == playerCardsAll.get(2).getRank() &&
-                playerCardsAll.get(2).getRank() == playerCardsAll.get(3).getRank()) {
+        if (copy.get(0).getRank() == copy.get(1).getRank() &&
+                copy.get(1).getRank() == copy.get(2).getRank() &&
+                copy.get(2).getRank() == copy.get(3).getRank()) {
             return true;
         }
 
@@ -224,17 +224,18 @@ public class HandEvaluator {
      * @return Boolean
      */
     public Boolean isFullHouse(ArrayList<Card> playerCardsAll) {
-        sortByMostPresentRank(playerCardsAll);
+        ArrayList<Card> copy = new ArrayList<>(playerCardsAll);
+        sortByMostPresentRank(copy);
 
-        if (playerCardsAll.get(0).getRank() == playerCardsAll.get(1).getRank() &&
-                playerCardsAll.get(1).getRank() == playerCardsAll.get(2).getRank()) {   //If rank repeats 3 times
-            if (playerCardsAll.get(3).getRank() == playerCardsAll.get(4).getRank()) {   //If following different rank repeats twice
+        if (copy.get(0).getRank() == copy.get(1).getRank() &&
+                copy.get(1).getRank() == copy.get(2).getRank()) {   //If rank repeats 3 times
+            if (copy.get(3).getRank() == copy.get(4).getRank()) {   //If following different rank repeats twice
                 return true;
             }
         }
-        else if (playerCardsAll.get(0).getRank() == playerCardsAll.get(1).getRank()) {  //Else if rank repeats 2 times
-            if (playerCardsAll.get(2).getRank() == playerCardsAll.get(3).getRank() &&
-                    playerCardsAll.get(3).getRank() == playerCardsAll.get(4).getRank()) {   //If following differebt rank repeats 3 times
+        else if (copy.get(0).getRank() == copy.get(1).getRank()) {  //Else if rank repeats 2 times
+            if (copy.get(2).getRank() == copy.get(3).getRank() &&
+                    copy.get(3).getRank() == copy.get(4).getRank()) {   //If following differebt rank repeats 3 times
                 return true;
             }
         }
@@ -248,9 +249,10 @@ public class HandEvaluator {
      * @return Boolean
      */
     public Boolean isFlush(ArrayList<Card> playerCardsAll) {
-        playerCardsAll = sortByMostPresentSuit(playerCardsAll);
+        ArrayList<Card> copy = new ArrayList<>(playerCardsAll);
+        sortByMostPresentSuit(copy);
 
-        if (playerCardsAll.get(0).getSuit() == playerCardsAll.get(4).getSuit()) {
+        if (copy.get(0).getSuit() == copy.get(4).getSuit()) {
             return true;
         }
         else {
@@ -281,9 +283,8 @@ public class HandEvaluator {
                 if (consecutiveCount == 5) {    // Straight found
                     return true;
                 }
-
             }
-            else if (sortedRanks.get(i) != sortedRanks.get(i - 1) + 1) {    // Reset count if not consecutive
+            else {
                 consecutiveCount = 1;
             }
         }
@@ -304,10 +305,11 @@ public class HandEvaluator {
      * @return Boolean
      */
     public Boolean isThreeOfKind(ArrayList<Card> playerCardsAll) {
-        sortByMostPresentRank(playerCardsAll);
+        ArrayList<Card> copy = new ArrayList<>(playerCardsAll);
+        sortByMostPresentRank(copy);
 
-        if (playerCardsAll.get(0).getRank() == playerCardsAll.get(1).getRank() &&
-                playerCardsAll.get(1).getRank() == playerCardsAll.get(2).getRank()) {
+        if (copy.get(0).getRank() == copy.get(1).getRank() &&
+                copy.get(1).getRank() == copy.get(2).getRank()) {
             return true;
         }
 
@@ -321,10 +323,11 @@ public class HandEvaluator {
      * @return Boolean
      */
     public Boolean isTwoPair(ArrayList<Card> playerCardsAll) {
-        sortByMostPresentRank(playerCardsAll);
+        ArrayList<Card> copy = new ArrayList<>(playerCardsAll);
+        sortByMostPresentRank(copy);
 
-        if (playerCardsAll.get(0).getRank() == playerCardsAll.get(1).getRank() &&
-                playerCardsAll.get(2).getRank() == playerCardsAll.get(3).getRank()) {
+        if (copy.get(0).getRank() == copy.get(1).getRank() &&
+                copy.get(2).getRank() == copy.get(3).getRank()) {
             return true;
         }
 
@@ -338,9 +341,10 @@ public class HandEvaluator {
      * @return Boolean
      */
     public Boolean isOnePair(ArrayList<Card> playerCardsAll) {
-        sortByMostPresentRank(playerCardsAll);
+        ArrayList<Card> copy = new ArrayList<>(playerCardsAll);
+        sortByMostPresentRank(copy);
 
-        if (playerCardsAll.get(0).getRank() == playerCardsAll.get(1).getRank()) {
+        if (copy.get(0).getRank() == copy.get(1).getRank()) {
             return true;
         }
 

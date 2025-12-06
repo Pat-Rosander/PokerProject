@@ -82,73 +82,50 @@ public class PokerSimulation extends HandEvaluator {
             // Evaluate hand (Check each HandEvaluator method)
             // Store each players total hand strength (hand strength enum + high card)
         for (int i = 0; i < players.size(); i++) {
-            Player currentPlayer = players.get(i);
-            HandResult currentHandResult = currentPlayer.getPlayerResults();
-            ArrayList<Card> currentCardsALl = playerCardAll(currentPlayer.getHoleCards(), communityCards);
+            var currentPlayer = players.get(i);
+            var currentCardsALl = playerCardAll(currentPlayer.getHoleCards(), communityCards);
 
             if (isRoyalFlush(currentCardsALl)) {
-                currentHandResult.setRank(HandRank.ROYAL_FLUSH);
-                currentHandResult.setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
-                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
-                currentHandResult.setBestFiveCards(bestFiveCards);
+                updateHandResult(currentPlayer, currentCardsALl, HandRank.ROYAL_FLUSH);
             }
             else if (isStraightFlush(currentCardsALl)) {
-                currentHandResult.setRank(HandRank.STRAIGHT_FLUSH);
-                currentHandResult.setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
-                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
-                currentHandResult.setBestFiveCards(bestFiveCards);
+                updateHandResult(currentPlayer, currentCardsALl, HandRank.STRAIGHT_FLUSH);
             }
             else if (isFourOfKind(currentCardsALl)) {
-                currentHandResult.setRank(HandRank.FOUR_OF_A_KIND);
-                currentHandResult.setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
-                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
-                currentHandResult.setBestFiveCards(bestFiveCards);
+                updateHandResult(currentPlayer, currentCardsALl, HandRank.FOUR_OF_A_KIND);
             }
             else if (isFullHouse(currentCardsALl)) {
-                currentHandResult.setRank(HandRank.FULL_HOUSE);
-                currentHandResult.setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
-                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
-                currentHandResult.setBestFiveCards(bestFiveCards);
+                updateHandResult(currentPlayer, currentCardsALl, HandRank.FULL_HOUSE);
             }
             else if (isFlush(currentCardsALl)) {
-                currentHandResult.setRank(HandRank.FLUSH);
-                currentHandResult.setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
-                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
-                currentHandResult.setBestFiveCards(bestFiveCards);
+                updateHandResult(currentPlayer, currentCardsALl, HandRank.FLUSH);
             }
             else if (isStraight(currentCardsALl)) {
-                currentHandResult.setRank(HandRank.STRAIGHT);
-                currentHandResult.setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
-                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
-                currentHandResult.setBestFiveCards(bestFiveCards);
+                updateHandResult(currentPlayer, currentCardsALl, HandRank.STRAIGHT);
             }
             else if (isThreeOfKind(currentCardsALl)) {
-                currentHandResult.setRank(HandRank.THREE_OF_A_KIND);
-                currentHandResult.setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
-                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
-                currentHandResult.setBestFiveCards(bestFiveCards);
+                updateHandResult(currentPlayer, currentCardsALl, HandRank.THREE_OF_A_KIND);
             }
             else if (isTwoPair(currentCardsALl)) {
-                currentHandResult.setRank(HandRank.TWO_PAIR);
-                currentHandResult.setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
-                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
-                currentHandResult.setBestFiveCards(bestFiveCards);
+                updateHandResult(currentPlayer, currentCardsALl, HandRank.TWO_PAIR);
             }
             else if (isOnePair(currentCardsALl)) {
-                currentHandResult.setRank(HandRank.PAIR);
-                currentHandResult.setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
-                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
-                currentHandResult.setBestFiveCards(bestFiveCards);
+                updateHandResult(currentPlayer, currentCardsALl, HandRank.PAIR);
             }
             else {
-                currentHandResult.setRank(HandRank.HIGH_CARD);
-                currentHandResult.setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
-                ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsALl.subList(0, 5));
-                currentHandResult.setBestFiveCards(bestFiveCards);
+                updateHandResult(currentPlayer, currentCardsALl, HandRank.HIGH_CARD);
             }
         }
-
         comparePlayers();
+    }
+
+    private void updateHandResult(Player currentPlayer, ArrayList<Card> currentCardsAll, HandRank rank) {
+        var currentHandResult = currentPlayer.getPlayerResults();
+
+        currentHandResult.setRank(rank);
+        currentHandResult.setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
+        ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsAll.subList(0, 5));
+        currentHandResult.setBestFiveCards(bestFiveCards);
     }
 
     private void comparePlayers() {
