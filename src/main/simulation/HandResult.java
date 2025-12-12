@@ -8,6 +8,11 @@ public class HandResult {
     private ArrayList<Card> bestFiveCards;
     private int handStrength;
 
+    public HandResult() {
+        this.rank = null;
+        this.bestFiveCards = null;
+        this.handStrength = -1;
+    }
     public HandResult(HandRank rank, ArrayList<Card> bestFiveCards, int handStrength) {
         this.rank = rank;
         this.bestFiveCards = bestFiveCards;

@@ -1,6 +1,6 @@
 package main.simulation;
 
-import java.lang.reflect.Array;
+import java.sql.Array;
 import java.util.*;
 import main.model.*;
 
@@ -90,12 +90,12 @@ public class HandEvaluator {
     }
 
     /**
-     * Selection sort algorithm by rank
+     * Selection sort algorithm by ascending rank
      *
      * @param inputHand
      * @return inputHand
      */
-    public ArrayList<Card> sortByRank(ArrayList<Card> inputHand) {
+    public ArrayList<Card> sortByAscendingRank(ArrayList<Card> inputHand) {
         int minValue, i, j;
         minValue = 0;
 
@@ -115,6 +115,35 @@ public class HandEvaluator {
             inputHand.set(minValue, temp);
         }
         return inputHand;
+    }
+
+    /**
+     * Selection sort algorithm by descending rank
+     *
+     * @param cards
+     * @return copy
+     */
+    public ArrayList<Card> sortByDescendingRank(List<Card> cards) {
+        ArrayList<Card> copy = new ArrayList<>(cards);
+        int maxValue, i, j;
+        maxValue = 0;
+
+        /**
+         * Selection sort algorithm
+         */
+        for (i = 0; i < copy.size(); i++) {
+            maxValue = i;
+            for (j = i + 1; j < copy.size(); j++) {
+                if (copy.get(j).convertRankToNum() > copy.get(maxValue).convertRankToNum()) {
+                    maxValue = j;
+                }
+            }
+            // Swap values
+            Card temp = copy.get(i);
+            copy.set(i, copy.get(maxValue));
+            copy.set(maxValue, temp);
+        }
+        return copy;
     }
 
     /**
@@ -353,26 +382,368 @@ public class HandEvaluator {
 
     /**
      *
-     * @param list1
-     * @param list2
+     * @param all7
      * @return
      */
-    public ArrayList<Card> compareHighCard(ArrayList<Card> list1, ArrayList<Card> list2) {
-        if (list1.size() != 5 || list2.size() != 5) {
-            throw new IllegalArgumentException("Both hands must have 5 cards");
+    HandResult evaluateHand(ArrayList<Card> all7) {
+        var copy = new ArrayList<Card>(all7);
+        var result = new HandResult();
+
+        if (isRoyalFlush(copy)) {
+            result.setRank(HandRank.ROYAL_FLUSH);
+            result.setHandStrength(result.convertHandRankToNum());
+            result.setBestFiveCards(findRoyalFlush(copy));// find best hand for royal flush (5 card list that is A-K-Q-J-10 suited)
+
+        } else if (isStraightFlush(copy)) {
+            result.setRank(HandRank.STRAIGHT_FLUSH);
+            result.setHandStrength(result.convertHandRankToNum());
+            result.setBestFiveCards(findStraightFlush(copy));// find best hand for straight flush (5 card list that is flush and straight)
+
+        } else if (isFourOfKind(copy)) {
+            result.setRank(HandRank.FOUR_OF_A_KIND);
+            result.setHandStrength(result.convertHandRankToNum());
+            result.setBestFiveCards(findQuads(copy));// find best hand for four of a kind (4 card list of same rank + highest rank kicker)
+
+        } else if (isFullHouse(copy)) {
+            result.setRank(HandRank.FULL_HOUSE);
+            result.setHandStrength(result.convertHandRankToNum());
+            result.setBestFiveCards(findFullHouse(copy));// find best hand for full house (5 card list of 3 some x rank and 2 some y rank)
+
+        } else if (isFlush(copy)) {
+            result.setRank(HandRank.FLUSH);
+            result.setHandStrength(result.convertHandRankToNum());
+            result.setBestFiveCards(findFlush(copy));// find best hand for flush (5 card list of same suit)
+
+        } else if (isStraight(copy)) {
+            result.setRank(HandRank.STRAIGHT);
+            result.setHandStrength(result.convertHandRankToNum());
+            result.setBestFiveCards(findStraight(copy));// find best hand for straight (5 card list of consecutive increasing rank)
+
+        } else if (isThreeOfKind(copy)) {
+            result.setRank(HandRank.THREE_OF_A_KIND);
+            result.setHandStrength(result.convertHandRankToNum());
+            result.setBestFiveCards(findTrips(copy));// find best hand for three of a kind (3 card list of same rank + 2 highest kicker)
+
+        } else if (isTwoPair(copy)) {
+            result.setRank(HandRank.TWO_PAIR);
+            result.setHandStrength(result.convertHandRankToNum());
+            result.setBestFiveCards(findTwoPair(copy));// find best hand for two pair (4 card list of 2 some x rank and 2 some y rank + highest kicker)
+
+        } else if (isOnePair(copy)) {
+            result.setRank(HandRank.PAIR);
+            result.setHandStrength(result.convertHandRankToNum());
+            result.setBestFiveCards(findPair(copy)); // find best hand for pair (2 card list of same rank + 3 highest kicker)
+        } else {
+            result.setRank(HandRank.HIGH_CARD);
+            result.setHandStrength(result.convertHandRankToNum());
+            result.setBestFiveCards(findHighCard(copy));
+        }
+        return result;
+    }
+
+    /**
+     * extracts five highest cards
+     * @param all7
+     * @return
+     */
+    private ArrayList<Card> findHighCard(ArrayList<Card> all7) {
+        var copy = new ArrayList<>(all7);
+        var sorted = sortByDescendingRank(copy);
+        return new ArrayList<>(sorted.subList(0, 5));
+    }
+
+    /**
+     * only called if isOnePair(all7) is true
+     * extracts pair and 3 highest cards
+     * @param all7
+     * @return
+     */
+    private ArrayList<Card> findPair(ArrayList<Card> all7) {
+        var copy = new ArrayList<>(all7);
+        copy = sortByMostPresentRank(copy);
+        var sorted = new ArrayList<Card>(5);
+
+        if (copy.get(0).getRank() == copy.get(1).getRank()) {
+            // add pair
+            sorted.add(copy.get(0));
+            sorted.add(copy.get(1));
+            // remove from high to low so indices don't shift incorrectly
+            copy.remove(1);
+            copy.remove(0);
+
+            // extract three highest value cards remaining
+            copy = sortByDescendingRank(copy);
+            sorted.add(copy.get(0));
+            sorted.add(copy.get(1));
+            sorted.add(copy.get(2));
+        }
+        return sorted;
+    }
+
+    /**
+     * only called if isTwoPair(all7) is true
+     * extracts two pair and highest card
+     * @param all7
+     * @return
+     */
+    private ArrayList<Card> findTwoPair(ArrayList<Card> all7) {
+        var copy = new ArrayList<Card>(all7);
+        copy = sortByMostPresentRank(copy);
+        var sorted = new ArrayList<Card>(5);
+
+        if (copy.get(0).getRank() == copy.get(1).getRank() && copy.get(2).getRank() == copy.get(3).getRank()) {
+            // add both pairs
+            sorted.add(copy.get(0));
+            sorted.add(copy.get(1));
+            sorted.add(copy.get(2));
+            sorted.add(copy.get(3));
+            // remove from high to low so indices don't shift incorrectly
+            copy.remove(3);
+            copy.remove(2);
+            copy.remove(1);
+            copy.remove(0);
+
+            // extract highest value card remaining
+            copy = sortByDescendingRank(copy);
+            sorted.add(copy.get(0));
+        }
+        return sorted;
+    }
+
+    /**
+     * only called if isThreeOfAKind(all7) is true
+     * extracts trips and two highest cards
+     * @param all7
+     * @return
+     */
+    private ArrayList<Card> findTrips(ArrayList<Card> all7) {
+        var copy = new ArrayList<Card>(all7);
+        copy = sortByMostPresentRank(copy);
+        var sorted = new ArrayList<Card>(5);
+
+        if (copy.get(0).getRank() == copy.get(1).getRank() && copy.get(1).getRank() == copy.get(2).getRank()) {
+            // add trips
+            sorted.add(copy.get(0));
+            sorted.add(copy.get(1));
+            sorted.add(copy.get(2));
+
+            // remove from high to low so indices don't shift incorrectly
+            copy.remove(2);
+            copy.remove(1);
+            copy.remove(0);
+
+            // extract two highest value cards remaining
+            copy = sortByDescendingRank(copy);
+            sorted.add(copy.get(0));
+            sorted.add(copy.get(1));
+        }
+        return sorted;
+    }
+
+    /**
+     * only called if isStraight(all7) is true
+     * extracts best straight (including A-5 wheel)
+     * @param all7
+     * @return
+     */
+    private ArrayList<Card> findStraight(ArrayList<Card> all7) {
+        Map<Integer, Card> cardByRank = new HashMap<>();
+        Set<Integer> rankSet = new HashSet<>();
+
+        for (Card c : all7) { // no duplicate ranks
+            int r = c.convertRankToNum();
+            rankSet.add(r);
+            cardByRank.putIfAbsent(r, c);
         }
 
-        list1 = sortByRank(list1);
-        list2 = sortByRank(list2);
+        List<Integer> ranks = new ArrayList<>(rankSet);
+        Collections.sort(ranks);
 
-        for (int i = 0; i < 5; i++) {
-            if (list1.get(i).convertRankToNum() > list2.get(i).convertRankToNum()) {
-                return list1;
+        List<Integer> bestRun = new ArrayList<>();
+        List<Integer> currentRun = new ArrayList<>();
+
+        for (int r : ranks) {
+            if (currentRun.isEmpty()) { // start run
+                currentRun.add(r);
             }
-            else if (list1.get(i).convertRankToNum() < list2.get(i).convertRankToNum()) {
-                return list2;
+            else {
+                int last = currentRun.get(currentRun.size() - 1); // look at previous rank
+                if (r == last + 1) { // if r continues straight
+                    currentRun.add(r);
+                } else if (r != last) { // if r breaks straight
+                    currentRun.clear();
+                    currentRun.add(r);
+                }
+            }
+            if (currentRun.size() >= 5) {
+                bestRun = new ArrayList<>(currentRun);
             }
         }
-        return null;
+
+        // A-2-3-4-5 wheel straight
+        boolean hasWheel = rankSet.contains(14) &&
+                        rankSet.contains(2) &&
+                        rankSet.contains(3) &&
+                        rankSet.contains(4) &&
+                        rankSet.contains(5);
+
+        ArrayList<Card> result = new ArrayList<Card>(5);
+
+        if (!bestRun.isEmpty()) { // perfer highest normal straight that beats wheel
+            List<Integer> needed = bestRun.subList(bestRun.size() - 5, bestRun.size());
+            for (int i = needed.size() - 1; i >= 0; i--) {
+                int r = needed.get(i);
+                result.add(cardByRank.get(r));
+            }
+            return result;
+        }
+
+        if (hasWheel) { // if no normal straight, check if wheel is present
+            int[] wheelRanks = {5, 4, 3, 2, 14};
+            for (int r: wheelRanks) {
+                result.add(cardByRank.get(r));
+            }
+            return result;
+        }
+        // no straight
+        return result;
+    }
+
+    /**
+     * only called if isFlush(all7) is true
+     * extracts highest value flush
+     * @param all7
+     * @return
+     */
+    private ArrayList<Card> findFlush (ArrayList<Card> all7) {
+        var sorted = new ArrayList<Card>(5);
+        Map<Card.Suit, ArrayList<Card>> suitGroups = new HashMap<>();
+        ArrayList<Card> flushSuitCards = null;
+
+        for (Card c : all7) {
+            suitGroups.computeIfAbsent(c.getSuit(), s -> new ArrayList<>()).add(c);
+        }
+
+        for (ArrayList<Card> group : suitGroups.values()) {
+            if (group.size() >= 5) {
+                flushSuitCards = group;
+                break;
+            }
+        }
+
+        if (flushSuitCards == null) {
+            return new ArrayList<>();
+        }
+
+        sorted = sortByDescendingRank(flushSuitCards);
+        return new ArrayList<>(sorted.subList(0, 5));
+    }
+
+    /**
+     * only called if isFullHouse(all7) is true
+     * extracts full house (trips and a pair)
+     * @param all7
+     * @return
+     */
+    private ArrayList<Card> findFullHouse (ArrayList<Card> all7) {
+        var copy = new ArrayList<Card>(all7);
+        copy = sortByMostPresentRank(copy);
+        var sorted = new ArrayList<Card>(5);
+
+        if (copy.get(0).getRank() == copy.get(1).getRank() &&
+                copy.get(1).getRank() == copy.get(2).getRank() &&
+                copy.get(3).getRank() == copy.get(4).getRank()) {
+            // add full house
+            sorted.add(copy.get(0));
+            sorted.add(copy.get(1));
+            sorted.add(copy.get(2));
+            sorted.add(copy.get(3));
+            sorted.add(copy.get(4));
+        }
+        return sorted;
+    }
+
+    /**
+     * only called if isFourOfAKind(all7) is true
+     * extracts quads and highest card
+     * @param all7
+     * @return
+     */
+    private ArrayList<Card> findQuads(ArrayList<Card> all7) {
+        var copy = new ArrayList<Card>(all7);
+        copy = sortByMostPresentRank(copy);
+        var sorted = new ArrayList<Card>(5);
+
+        if (copy.get(0).getRank() == copy.get(1).getRank() &&
+                copy.get(1).getRank() == copy.get(2).getRank() &&
+                copy.get(2).getRank() == copy.get(3).getRank()) {
+            // add quads
+            sorted.add(copy.get(0));
+            sorted.add(copy.get(1));
+            sorted.add(copy.get(2));
+            sorted.add(copy.get(3));
+
+            // remove from high to low
+            copy.remove(3);
+            copy.remove(2);
+            copy.remove(1);
+            copy.remove(0);
+
+            // extract highest remaining value card
+            copy = sortByDescendingRank(copy);
+            sorted.add(copy.get(0));
+        }
+        return sorted;
+    }
+
+    /**
+     *
+     * @param all7
+     * @return
+     */
+    private ArrayList<Card> findStraightFlush (ArrayList<Card> all7) {
+        Map<Card.Suit, ArrayList<Card>> suitGroups = new HashMap<>();
+        for (Card c : all7) {
+            // if map contains suit, return list, and append c to list
+            // if map does not contain suit, execute lambda, insert newly created list into map,
+            // return new list, and append c to list
+            suitGroups.computeIfAbsent(c.getSuit(), s -> new ArrayList<>()).add(c);
+        }
+
+        ArrayList<Card> flushSuitCards = null;
+        for (ArrayList<Card> group : suitGroups.values()) {
+            // if any suitGroup has length greater or equal to 5, assign it to flushSuitCards, and break
+            if (group.size() >= 5) {
+                flushSuitCards = group;
+                break;
+            }
+        }
+        if (flushSuitCards == null) {
+            return new ArrayList<Card>();
+        }
+
+        return findStraight(flushSuitCards);
+    }
+
+    /**
+     *
+     * @param all7
+     * @return
+     */
+    private ArrayList<Card> findRoyalFlush (ArrayList<Card> all7) {
+        ArrayList<Card> copy = findStraightFlush(all7);
+
+        if (copy.size() != 5) {
+            return new ArrayList<Card>();
+        }
+
+        int low = copy.get(0).convertRankToNum();
+        int high = copy.get(4).convertRankToNum();
+
+        if (low == 10 && high == 14) {
+            return copy;
+        }
+
+        return new ArrayList<Card>();
     }
 }

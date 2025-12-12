@@ -78,87 +78,66 @@ public class PokerSimulation extends HandEvaluator {
     }
 
     public void handleWinners() {
-        // For each player in game
-            // Evaluate hand (Check each HandEvaluator method)
-            // Store each players total hand strength (hand strength enum + high card)
-        for (int i = 0; i < players.size(); i++) {
+        for (int i = 0; i < players.size(); i++) { // Evaluate each players hand and assign a HandResult
             var currentPlayer = players.get(i);
-            var currentCardsALl = playerCardAll(currentPlayer.getHoleCards(), communityCards);
-
-            if (isRoyalFlush(currentCardsALl)) {
-                updateHandResult(currentPlayer, currentCardsALl, HandRank.ROYAL_FLUSH);
-            }
-            else if (isStraightFlush(currentCardsALl)) {
-                updateHandResult(currentPlayer, currentCardsALl, HandRank.STRAIGHT_FLUSH);
-            }
-            else if (isFourOfKind(currentCardsALl)) {
-                updateHandResult(currentPlayer, currentCardsALl, HandRank.FOUR_OF_A_KIND);
-            }
-            else if (isFullHouse(currentCardsALl)) {
-                updateHandResult(currentPlayer, currentCardsALl, HandRank.FULL_HOUSE);
-            }
-            else if (isFlush(currentCardsALl)) {
-                updateHandResult(currentPlayer, currentCardsALl, HandRank.FLUSH);
-            }
-            else if (isStraight(currentCardsALl)) {
-                updateHandResult(currentPlayer, currentCardsALl, HandRank.STRAIGHT);
-            }
-            else if (isThreeOfKind(currentCardsALl)) {
-                updateHandResult(currentPlayer, currentCardsALl, HandRank.THREE_OF_A_KIND);
-            }
-            else if (isTwoPair(currentCardsALl)) {
-                updateHandResult(currentPlayer, currentCardsALl, HandRank.TWO_PAIR);
-            }
-            else if (isOnePair(currentCardsALl)) {
-                updateHandResult(currentPlayer, currentCardsALl, HandRank.PAIR);
-            }
-            else {
-                updateHandResult(currentPlayer, currentCardsALl, HandRank.HIGH_CARD);
-            }
+            var currentCardsAll = playerCardAll(currentPlayer.getHoleCards(), communityCards);
+            var currentHandResult = evaluateHand(currentCardsAll);
+            currentPlayer.setPlayerResults(currentHandResult);
         }
         comparePlayers();
     }
 
-    private void updateHandResult(Player currentPlayer, ArrayList<Card> currentCardsAll, HandRank rank) {
-        var currentHandResult = currentPlayer.getPlayerResults();
-
-        currentHandResult.setRank(rank);
-        currentHandResult.setHandStrength(currentPlayer.getPlayerResults().convertHandRankToNum());
-        ArrayList<Card> bestFiveCards = new ArrayList<Card>(currentCardsAll.subList(0, 5));
-        currentHandResult.setBestFiveCards(bestFiveCards);
-    }
-
     private void comparePlayers() {
-        Player highestValuePlayer = new Player();
-        int highestValue = 0;
+        winningPlayers.clear(); // clear winning players at start of comparison
 
-        for (int i = 0; i < players.size(); i++) {
-            Player currPlayer = players.get(i);
-            int currValue = currPlayer.getPlayerResults().getHandStrength();
+        HandResult bestResult = null;
 
-            if (highestValue < currValue) {
-                highestValuePlayer = currPlayer;
-                highestValue = currValue;
-            }
-            else if (highestValue == currValue) { // If 2 players have same hand rank
-                ArrayList<Card> winningHand = compareHighCard(highestValuePlayer.getPlayerResults().getBestFiveCards(), currPlayer.getPlayerResults().getBestFiveCards());
-                if (winningHand == null) {
-                    winningPlayers.add(currPlayer);
-                    break;
+        for (Player p : players) {
+            HandResult currResult = p.getPlayerResults();
+
+            if (bestResult == null) { // initialize bestResult with first Player in players
+                bestResult = currResult;
+                winningPlayers.add(p);
+            } else {
+                int compare = compareHandResults(bestResult, currResult);
+
+                if (compare > 0) { // currResult is stronger
+                    bestResult = currResult;
+                    winningPlayers.clear();
+                    winningPlayers.add(p);
                 }
-                else if (highestValuePlayer.getPlayerResults().getBestFiveCards() != winningHand) {
-                    highestValuePlayer = currPlayer;
-                    highestValue = currValue;
+                else if (compare == 0) { // exact tie
+                    winningPlayers.add(p);
                 }
+                // else compare<0 ignored b/c bestResult is strongest
             }
         }
-        winningPlayers.add(highestValuePlayer);
+    }
+
+    private int compareHandResults (HandResult a, HandResult b) {
+        int strengthA = a.getHandStrength();
+        int strengthB = b.getHandStrength();
+
+        if (strengthA != strengthB) {
+            return Integer.compare(strengthA, strengthB);
+        }
+        var handA = a.getBestFiveCards();
+        var handB = b.getBestFiveCards();
+
+        for (int i = 0; i < 5; i++) {
+            var rankA = handA.get(i).convertRankToNum();
+            var rankB = handB.get(i).convertRankToNum();
+            if (rankA != rankB) {
+                return Integer.compare(rankA, rankB);
+            }
+        }
+        return 0;
     }
 
     @Override
     public String toString() {
         return "Players in simulation: " + players +
-                " Table cards: " + communityCards +
-                " Winner: " + winningPlayers;
+                "\nTable cards: " + communityCards +
+                "\nWinner: " + winningPlayers;
     }
 }
