@@ -17,7 +17,6 @@ public class SimulationResults {
         this.winningHoleCards = null;
         this.winningHand = null;
         // TODO assign winningHoleCards and winningHand with a value --> implement an extractWinningHand() method
-
     }
 
     public ArrayList<Player> getPlayersList() {
