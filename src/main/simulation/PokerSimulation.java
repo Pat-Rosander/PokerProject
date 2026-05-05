@@ -99,7 +99,7 @@ public class PokerSimulation extends HandEvaluator {
                 bestResult = currResult;
                 winningPlayers.add(p);
             } else {
-                int compare = compareHandResults(bestResult, currResult);
+                int compare = compareHandResults(currResult, bestResult);
 
                 if (compare > 0) { // currResult is stronger
                     bestResult = currResult;

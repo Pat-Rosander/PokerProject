@@ -27,3 +27,8 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+analytics/.venv/
+__pycache__/
+.ipynb_checkpoints/
+.env

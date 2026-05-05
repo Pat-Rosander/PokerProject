@@ -388,57 +388,99 @@ public class HandEvaluator {
     HandResult evaluateHand(ArrayList<Card> all7) {
         var copy = new ArrayList<Card>(all7);
         var result = new HandResult();
+        var best = new ArrayList<Card>();
 
-        if (isRoyalFlush(copy)) {
+        best = findRoyalFlush(copy);
+        if (best.size() == 5) {
             result.setRank(HandRank.ROYAL_FLUSH);
             result.setHandStrength(result.convertHandRankToNum());
-            result.setBestFiveCards(findRoyalFlush(copy));// find best hand for royal flush (5 card list that is A-K-Q-J-10 suited)
+            result.setBestFiveCards(best); // find best hand for royal flush (5 card list that is A-K-Q-J-10 suited)
+            return result;
+        }
 
-        } else if (isStraightFlush(copy)) {
+        best = findStraightFlush(copy);
+        if (best.size() == 5) {
             result.setRank(HandRank.STRAIGHT_FLUSH);
             result.setHandStrength(result.convertHandRankToNum());
-            result.setBestFiveCards(findStraightFlush(copy));// find best hand for straight flush (5 card list that is flush and straight)
+            result.setBestFiveCards(best);// find best hand for straight flush (5 card list that is flush and straight)
+            return result;
+        }
 
-        } else if (isFourOfKind(copy)) {
+        best = findQuads(copy);
+        if (best.size() == 5) {
             result.setRank(HandRank.FOUR_OF_A_KIND);
             result.setHandStrength(result.convertHandRankToNum());
-            result.setBestFiveCards(findQuads(copy));// find best hand for four of a kind (4 card list of same rank + highest rank kicker)
+            result.setBestFiveCards(best);// find best hand for four of a kind (4 card list of same rank + highest rank kicker)
+            return result;
+        }
 
-        } else if (isFullHouse(copy)) {
+        best = findFullHouse(copy);
+        if (best.size() == 5) {
             result.setRank(HandRank.FULL_HOUSE);
             result.setHandStrength(result.convertHandRankToNum());
-            result.setBestFiveCards(findFullHouse(copy));// find best hand for full house (5 card list of 3 some x rank and 2 some y rank)
+            result.setBestFiveCards(best);// find best hand for full house (5 card list of 3 some x rank and 2 some y rank)
+            return result;
+        }
 
-        } else if (isFlush(copy)) {
+        best = findFlush(copy);
+        if (best.size() == 5) {
             result.setRank(HandRank.FLUSH);
             result.setHandStrength(result.convertHandRankToNum());
-            result.setBestFiveCards(findFlush(copy));// find best hand for flush (5 card list of same suit)
+            result.setBestFiveCards(best);// find best hand for flush (5 card list of same suit)
+            return result;
+        }
 
-        } else if (isStraight(copy)) {
+        best = findStraight(copy);
+        if (best.size() == 5) {
             result.setRank(HandRank.STRAIGHT);
             result.setHandStrength(result.convertHandRankToNum());
-            result.setBestFiveCards(findStraight(copy));// find best hand for straight (5 card list of consecutive increasing rank)
+            result.setBestFiveCards(best);// find best hand for straight (5 card list of consecutive increasing rank)
+            return result;
+        }
 
-        } else if (isThreeOfKind(copy)) {
+        best = findTrips(copy);
+        if (best.size() == 5) {
             result.setRank(HandRank.THREE_OF_A_KIND);
             result.setHandStrength(result.convertHandRankToNum());
-            result.setBestFiveCards(findTrips(copy));// find best hand for three of a kind (3 card list of same rank + 2 highest kicker)
+            result.setBestFiveCards(best);// find best hand for three of a kind (3 card list of same rank + 2 highest kicker)
+            return result;
+        }
 
-        } else if (isTwoPair(copy)) {
+        best = findTwoPair(copy);
+        if (best.size() == 5) {
             result.setRank(HandRank.TWO_PAIR);
             result.setHandStrength(result.convertHandRankToNum());
-            result.setBestFiveCards(findTwoPair(copy));// find best hand for two pair (4 card list of 2 some x rank and 2 some y rank + highest kicker)
+            result.setBestFiveCards(best);// find best hand for two pair (4 card list of 2 some x rank and 2 some y rank + highest kicker)
+            return result;
+        }
 
-        } else if (isOnePair(copy)) {
+        best = findPair(copy);
+        if (best.size() == 5) {
             result.setRank(HandRank.PAIR);
             result.setHandStrength(result.convertHandRankToNum());
-            result.setBestFiveCards(findPair(copy)); // find best hand for pair (2 card list of same rank + 3 highest kicker)
-        } else {
-            result.setRank(HandRank.HIGH_CARD);
-            result.setHandStrength(result.convertHandRankToNum());
-            result.setBestFiveCards(findHighCard(copy));
+            result.setBestFiveCards(best); // find best hand for pair (2 card list of same rank + 3 highest kicker)
+            return result;
         }
+
+        best = findHighCard(copy);
+        result.setRank(HandRank.HIGH_CARD);
+        result.setHandStrength(result.convertHandRankToNum());
+        result.setBestFiveCards(best);
         return result;
+    }
+
+    private ArrayList<Card> normalizeCardOrder (HandRank rank, ArrayList<Card> best) {
+        switch (rank) {
+            case STRAIGHT:
+            case STRAIGHT_FLUSH:
+            case ROYAL_FLUSH:
+                return sortByDescendingRank(best);
+            case HIGH_CARD:
+            case FLUSH:
+                return sortByDescendingRank(best);
+            default:
+                return best;
+        }
     }
 
     /**
@@ -737,8 +779,8 @@ public class HandEvaluator {
             return new ArrayList<Card>();
         }
 
-        int low = copy.get(0).convertRankToNum();
-        int high = copy.get(4).convertRankToNum();
+        int high = copy.get(0).convertRankToNum();
+        int low = copy.get(4).convertRankToNum();
 
         if (low == 10 && high == 14) {
             return copy;
