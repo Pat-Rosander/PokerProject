@@ -95,7 +95,7 @@ public class PokerSimulation extends HandEvaluator {
         for (Player p : players) {
             HandResult currResult = p.getPlayerResults();
 
-            if (bestResult == null) { // initialize bestResult with first Player in players
+            if (bestResult == null) { // initialize bestResult with first Player object in players list
                 bestResult = currResult;
                 winningPlayers.add(p);
             } else {

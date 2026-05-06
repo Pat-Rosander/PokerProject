@@ -413,6 +413,63 @@ class DeckTest {
         ));
         assertEquals(expectedHole, winner.getHoleCards(), "player1 should beat player2 with K♠ and 10♦");
     }
+
+    @Test
+    @DisplayName("Pair bestFiveCards are ordered pair first, then kickers descending")
+    void pairBestFiveCardsOrder() {
+        HandEvaluator eval = new HandEvaluator();
+
+        ArrayList<Card> all7 = new ArrayList<>(Arrays.asList(
+                new Card(Card.Rank.ACE, Card.Suit.SPADE),
+                new Card(Card.Rank.ACE, Card.Suit.HEART),
+                new Card(Card.Rank.KING, Card.Suit.SPADE),
+                new Card(Card.Rank.QUEEN, Card.Suit.DIAMOND),
+                new Card(Card.Rank.TEN, Card.Suit.DIAMOND),
+                new Card(Card.Rank.SIX, Card.Suit.CLUB),
+                new Card(Card.Rank.TWO, Card.Suit.SPADE)
+        ));
+
+        HandResult result = eval.evaluateHand(all7);
+
+        assertEquals(HandRank.PAIR, result.getRank());
+
+        ArrayList<Card> best = result.getBestFiveCards();
+
+        assertEquals(Card.Rank.ACE, best.get(0).getRank());
+        assertEquals(Card.Rank.ACE, best.get(1).getRank());
+        assertEquals(Card.Rank.KING, best.get(2).getRank());
+        assertEquals(Card.Rank.QUEEN, best.get(3).getRank());
+        assertEquals(Card.Rank.TEN, best.get(4).getRank());
+    }
+
+    @Test
+    @DisplayName("High card bestFiveCards are ordered descending values")
+    void highCardBestFiveCardsOrder() {
+        HandEvaluator eval = new HandEvaluator();
+
+        ArrayList<Card> all7 = new ArrayList<>(Arrays.asList(
+                new Card(Card.Rank.ACE, Card.Suit.SPADE),
+                new Card(Card.Rank.KING, Card.Suit.HEART),
+                new Card(Card.Rank.QUEEN, Card.Suit.SPADE),
+                new Card(Card.Rank.TEN, Card.Suit.DIAMOND),
+                new Card(Card.Rank.EIGHT, Card.Suit.DIAMOND),
+                new Card(Card.Rank.SIX, Card.Suit.CLUB),
+                new Card(Card.Rank.TWO, Card.Suit.SPADE)
+        ));
+
+        HandResult result = eval.evaluateHand(all7);
+
+        assertEquals(HandRank.HIGH_CARD, result.getRank());
+
+        ArrayList<Card> best = result.getBestFiveCards();
+
+        assertEquals(Card.Rank.ACE, best.get(0).getRank());
+        assertEquals(Card.Rank.KING, best.get(1).getRank());
+        assertEquals(Card.Rank.QUEEN, best.get(2).getRank());
+        assertEquals(Card.Rank.TEN, best.get(3).getRank());
+        assertEquals(Card.Rank.EIGHT, best.get(4).getRank());
+    }
+
     private Player getOnlyWinner(PokerSimulation simulation) {
         var winners = simulation.getWinningPlayers();
         assertEquals(1, winners.size(), "should be one winner");

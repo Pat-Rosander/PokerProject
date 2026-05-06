@@ -1,6 +1,5 @@
 package main.simulation;
 
-import java.sql.Array;
 import java.util.*;
 import main.model.*;
 
@@ -327,6 +326,11 @@ public class HandEvaluator {
         return false;
     }
 
+    public Boolean isAceLowStraight(ArrayList<Card> playerCardsAll) {
+
+        return false;
+    }
+
     /**
      * Checks if playerCardsAll contains a three of a kind (4-4-4-K-J)
      *
@@ -385,7 +389,7 @@ public class HandEvaluator {
      * @param all7
      * @return
      */
-    HandResult evaluateHand(ArrayList<Card> all7) {
+    public HandResult evaluateHand(ArrayList<Card> all7) {
         var copy = new ArrayList<Card>(all7);
         var result = new HandResult();
         var best = new ArrayList<Card>();
@@ -467,20 +471,6 @@ public class HandEvaluator {
         result.setHandStrength(result.convertHandRankToNum());
         result.setBestFiveCards(best);
         return result;
-    }
-
-    private ArrayList<Card> normalizeCardOrder (HandRank rank, ArrayList<Card> best) {
-        switch (rank) {
-            case STRAIGHT:
-            case STRAIGHT_FLUSH:
-            case ROYAL_FLUSH:
-                return sortByDescendingRank(best);
-            case HIGH_CARD:
-            case FLUSH:
-                return sortByDescendingRank(best);
-            default:
-                return best;
-        }
     }
 
     /**

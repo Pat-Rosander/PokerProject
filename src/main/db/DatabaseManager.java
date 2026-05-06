@@ -33,7 +33,7 @@ public class DatabaseManager {
     public static void initializeSchema(Connection connection) {
         createSimulationTable(connection);
         createPlayersTable(connection);
-        createHandsTable(connection);
+        createOutcomesTable(connection);
         createCommunityCardsTable(connection);
     }
     /**
@@ -44,8 +44,11 @@ public class DatabaseManager {
         try(Statement statement = connection.createStatement()) {
             final String createTableStatement = """
                 CREATE TABLE IF NOT EXISTS simulations (
-                    id SERIAL PRIMARY KEY, 
-                    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    simulation_id BIGINT PRIMARY KEY AUTO_INCREMENT, 
+                    num_players INT NOT NULL,
+                    date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    simulation_type VARCHAR(50),
+                    notes TEXT
                 );
                 """;
             statement.execute(createTableStatement);
@@ -62,12 +65,16 @@ public class DatabaseManager {
         try(Statement statement = connection.createStatement()) {
             final String createTableStatement = """
                 CREATE TABLE IF NOT EXISTS players (
-                    id SERIAL PRIMARY KEY, 
-                    simulation_id INT REFERENCES simulations(id) ON DELETE CASCADE, 
-                    name VARCHAR(50), 
-                    card1 VARCHAR(20), 
-                    card2 VARCHAR(20), 
-                    is_winner BOOLEAN
+                    simulation_player_id BIGINT PRIMARY KEY AUTO_INCREMENT, 
+                    simulation_id BIGINT NOT NULL,
+                    player_position INT NOT NULL,
+                    
+                    hole_card_1_rank VARCHAR(10) NOT NULL,
+                    hole_card_1_suit VARCHAR(10) NOT NULL,
+                    hole_card_2_rank VARCHAR(10) NOT NULL,
+                    hole_card_2_suit VARCHAR(10) NOT NULL,
+                    
+                    FOREIGN KEY (simulation_id) REFERENCES simulations(simulation_id)
             );
             """;
             statement.execute(createTableStatement);
@@ -76,40 +83,7 @@ public class DatabaseManager {
             throw new RuntimeException("Failed to create players table", e);
         }
     }
-    /**
-     * Creates table storing hand info
-     * @param connection
-     */
-    public static void createHandsTable(Connection connection) {
-        try(Statement statement = connection.createStatement()) {
-            // Create ENUM type if doesn't exist
-            final String createEnumStatement = """
-                DO $$ BEGIN
-                    IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'hand_rank_enum') THEN
-                        CREATE TYPE hand_rank_enum AS ENUM (
-                            'HIGH_CARD', 'PAIR', 'TWO_PAIR', 'THREE_OF_A_KIND', 'STRAIGHT',
-                            'FLUSH', 'FULL_HOUSE', 'FOUR_OF_A_KIND', 'STRAIGHT_FLUSH', 'ROYAL_FLUSH'
-                        );
-                    END IF;
-                END $$;
-                """;
-            statement.execute(createEnumStatement);
 
-            final String createTableStatement = """
-                CREATE TABLE IF NOT EXISTS hands (
-                    id SERIAL PRIMARY KEY, 
-                    player_id INT references players(id), 
-                    hand_rank hand_rank_enum NOT NULL, 
-                    hand_strength INT NOT NULL, 
-                    cards JSONB
-                );
-                """;
-            statement.execute(createTableStatement);
-            System.out.println("Hands table created");
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to create hands table", e);
-        }
-    }
     /**
      * Creates table storing community cards
      * @param connection
@@ -118,15 +92,99 @@ public class DatabaseManager {
         try(Statement statement = connection.createStatement()) {
             final String createTableStatement = """
                 CREATE TABLE IF NOT EXISTS community_cards (
-                    id SERIAL PRIMARY KEY, 
-                    simulation_id INT REFERENCES simulations(id), 
-                    cards JSONB
+                    community_cards_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                    simulation_id BIGINT NOT NULL,
+                    
+                    flop_1_rank VARCHAR(10),
+                    flop_1_suit VARCHAR(10),
+                    flop_2_rank VARCHAR(10),
+                    flop_2_suit VARCHAR(10),
+                    flop_3_rank VARCHAR(10),
+                    flop_3_suit VARCHAR(10),
+                    turn_rank VARCHAR(10),
+                    turn_suit VARCHAR(10),
+                    river_rank VARCHAR(10),
+                    river_suit VARCHAR(10),
+                    
+                    FOREIGN KEY (simulation_id) REFERENCES simulations(simulation_id)
                 );
                 """;
             statement.execute(createTableStatement);
             System.out.println("Community cards table created");
         } catch (SQLException e) {
             throw new RuntimeException("Failed to create community_cards table", e);
+        }
+    }
+
+    /**
+     * Creates table storing simulation results
+     * @param connection
+     */
+    public static void createOutcomesTable(Connection connection) {
+        try(Statement statement = connection.createStatement()) {
+            final String createTableStatement = """
+                CREATE TABLE IF NOT EXISTS outcomes (
+                    outcome_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                    simulation_id BIGINT NOT NULL,
+                    simulation_player_id BIGINT NOT NULL,
+                    
+                    hand_rank VARCHAR(30) NOT NULL,
+                    hand_strength INT NOT NULL,
+                    is_winner BOOLEAN NOT NULL,
+                    
+                    best_card_1_rank VARCHAR(10),
+                    best_card_1_suit VARCHAR(10),
+                    best_card_2_rank VARCHAR(10),
+                    best_card_2_suit VARCHAR(10),
+                    best_card_3_rank VARCHAR(10),
+                    best_card_3_suit VARCHAR(10),
+                    best_card_4_rank VARCHAR(10),
+                    best_card_4_suit VARCHAR(10),
+                    best_card_5_rank VARCHAR(10),
+                    best_card_5_suit VARCHAR(10),
+                    
+                    FOREIGN KEY (simulation_id) REFERENCES simulations(simulation_id),
+                    FOREIGN KEY (simulation_player_id) REFERENCES simulation_players(simulation_player_id)
+                );
+                """;
+            statement.execute(createTableStatement);
+            System.out.println("Outcomes table created");
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to create outcomes table", e);
+        }
+    }
+
+    /**
+     * Creates table storing analytics for machine learning data
+     * @param connection
+     */
+    public static void createFeaturesTable(Connection connection) {
+        try(Statement statement = connection.createStatement()) {
+            final String createTableStatement = """
+                CREATE TABLE IF NOT EXISTS features (
+                    feature_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                    simulation_id BIGINT NOT NULL,
+                    simulation_player_id BIGINT NOT NULL,
+                
+                    hole_card_category VARCHAR(10),
+                    is_pair BOOLEAN,
+                    is_suited BOOLEAN,
+                    is_connected BOOLEAN,
+                    rank_gap INT,
+                    high_card_rank INT,
+                    low_card_rank INT,
+                
+                    player_count INT,
+                    position INT,
+                
+                    FOREIGN KEY (simulation_id) REFERENCES simulations(simulation_id),
+                    FOREIGN KEY (simulation_player_id) REFERENCES simulation_players(simulation_player_id)
+                );
+                """;
+            statement.execute(createTableStatement);
+            System.out.println("Feature table created");
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to create features table", e);
         }
     }
 }

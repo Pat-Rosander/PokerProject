@@ -10,6 +10,12 @@ public class Main {
     public static void main(String[] args) {
 
         PokerSimulation simulation = new PokerSimulation();
+        simulation.runSimulation(2);
+        for (int i = 0; i < simulation.getPlayers().size(); i++) {
+            System.out.println(simulation.getPlayers().get(i).getHoleCards().toString());
+        }
+
+        /*
         System.out.println(simulation.toString());
         for (int i = 0; i < simulation.getWinningPlayers().size(); i++) {
             System.out.println(simulation.getWinningPlayers().get(i).getPlayerResults());
@@ -24,5 +30,6 @@ public class Main {
         ));
         System.out.println(simulation.sortByAscendingRank(testHand));
         System.out.println(simulation.sortByDescendingRank(testHand));
+        */
     }
 }
