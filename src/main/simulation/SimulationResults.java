@@ -6,17 +6,22 @@ import main.model.*;
 public class SimulationResults {
     private ArrayList<Player> playersList;
     private ArrayList<Player> winningPlayers;
-    private ArrayList<Card> winningHoleCards;
-    private ArrayList<Card> winningHand;
+    private List<List<Card>> winningHoleCards;
+    private List<List<Card>> winningHands;
     private List<Card> communityCards;
 
     public SimulationResults(ArrayList<Player> playersList, ArrayList<Player> winningPlayers, List<Card> communityCards) {
         this.playersList = playersList;
         this.winningPlayers = winningPlayers;
         this.communityCards = communityCards;
-        this.winningHoleCards = null;
-        this.winningHand = null;
-        // TODO assign winningHoleCards and winningHand with a value --> implement an extractWinningHand() method
+
+        this.winningHoleCards = new ArrayList<>();
+        this.winningHands = new ArrayList<>();
+
+        for (Player p : winningPlayers) {
+            winningHoleCards.add(new ArrayList<>(p.getHoleCards()));
+            winningHands.add(new ArrayList<>(p.getPlayerResults().getBestFiveCards()));
+        }
     }
 
     public ArrayList<Player> getPlayersList() {
@@ -35,20 +40,20 @@ public class SimulationResults {
         this.winningPlayers = winningPlayers;
     }
 
-    public ArrayList<Card> getWinningHoleCards() {
+    public List<List<Card>> getWinningHoleCards() {
         return winningHoleCards;
     }
 
-    public void setWinningHoleCards(ArrayList<Card> winningHoleCards) {
+    public void setWinningHoleCards(List<List<Card>> winningHoleCards) {
         this.winningHoleCards = winningHoleCards;
     }
 
-    public ArrayList<Card> getWinningHand() {
-        return winningHand;
+    public List<List<Card>> getWinningHand() {
+        return winningHands;
     }
 
-    public void setWinningHand(ArrayList<Card> winningHand) {
-        this.winningHand = winningHand;
+    public void setWinningHand(List<List<Card>> winningHand) {
+        this.winningHands = winningHands;
     }
 
 }
