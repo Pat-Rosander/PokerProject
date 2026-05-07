@@ -10,10 +10,21 @@ public class Player {
     private ArrayList<Card> holeCards; // main.model.Player has a list of two hole cards
     private HandResult playerResults;
 
+    public Boolean getWinner() {
+        return isWinner;
+    }
+
+    public void setWinner(Boolean winner) {
+        isWinner = winner;
+    }
+
+    private Boolean isWinner;
+
     public Player(String name, ArrayList<Card> holeCards) {
         this.name = name;
         this.holeCards = holeCards;
         playerResults = new HandResult(null, null, -1);
+        this.isWinner = false;
     }
 
     public Player() {

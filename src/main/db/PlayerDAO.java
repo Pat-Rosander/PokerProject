@@ -6,7 +6,6 @@ import main.model.Player;
 import java.sql.*;
 import java.util.List;
 import java.util.Optional;
-import main.db.DatabaseManager;
 
 public class PlayerDAO {
     private final Connection connection;
@@ -23,7 +22,7 @@ public class PlayerDAO {
         return List.of();
     }
 
-    public long save(Player player) throws SQLException {
+    public long save(Player player, long simulationId, int playerPosition) throws SQLException {
         String sql = """
             INSERT INTO players (
                 simulation_id,
@@ -34,25 +33,30 @@ public class PlayerDAO {
                 hole_card_2_suit
             )
             VALUES (?, ?, ?, ?, ?, ?)
+            RETURNING simulation_player_id
             """;
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             Card card1 = player.getHoleCards().get(0);
             Card card2 = player.getHoleCards().get(1);
 
-            //ps.setLong(1, /* simulationId */);
-            //ps.setInt(2, /* playerPosition */);
+            ps.setLong(1, simulationId);
+            ps.setInt(2, playerPosition);
             ps.setString(3, card1.getRank().name());
             ps.setString(4, card1.getSuit().name());
             ps.setString(5, card2.getRank().name());
             ps.setString(6, card2.getSuit().name());
 
-            ps.executeUpdate();
+            ResultSet rs = ps.executeQuery();
 
-            return -1; // TODO return simulation_player_id
+            if (rs.next()) {
+                return rs.getLong("simulation_player_id");
+            }
+
+            throw new SQLException("No simulation_player_id returned");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to save player data", e);
+            throw new RuntimeException("Failed to create player row", e);
         }
     }
 

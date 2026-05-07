@@ -326,8 +326,13 @@ public class HandEvaluator {
         return false;
     }
 
+    /**
+     * Checks if straight is Ace low
+     * @param playerCardsAll
+     * @return
+     */
     public Boolean isAceLowStraight(ArrayList<Card> playerCardsAll) {
-
+            // TODO implement this method if necessary
         return false;
     }
 
