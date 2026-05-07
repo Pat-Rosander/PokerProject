@@ -1,19 +1,21 @@
 package main.model;
 
+import main.service.SimulationPersistenceService;
 import main.simulation.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Main {
     // Test connection
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         PokerSimulation simulation = new PokerSimulation();
-        simulation.runSimulation(2);
+        SimulationResults results = simulation.runSimulation(2);
+        SimulationPersistenceService persistenceService = new SimulationPersistenceService();
+        persistenceService.saveSimulationResults(results);
+
         for (int i = 0; i < simulation.getPlayers().size(); i++) {
             System.out.println(simulation.getPlayers().get(i).getHoleCards().toString());
         }
+        System.out.println("Simulation results saved to PostgreSQL");
 
         /*
         System.out.println(simulation.toString());
