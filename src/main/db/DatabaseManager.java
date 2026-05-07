@@ -33,8 +33,9 @@ public class DatabaseManager {
     public static void initializeSchema(Connection connection) {
         createSimulationTable(connection);
         createPlayersTable(connection);
-        createOutcomesTable(connection);
         createCommunityCardsTable(connection);
+        createOutcomesTable(connection);
+        createFeaturesTable(connection);
     }
     /**
      * Creates table storing simulation
@@ -44,7 +45,7 @@ public class DatabaseManager {
         try(Statement statement = connection.createStatement()) {
             final String createTableStatement = """
                 CREATE TABLE IF NOT EXISTS simulations (
-                    simulation_id BIGINT PRIMARY KEY AUTO_INCREMENT, 
+                    simulation_id BIGSERIAL PRIMARY KEY, 
                     num_players INT NOT NULL,
                     date_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     simulation_type VARCHAR(50),
@@ -65,7 +66,7 @@ public class DatabaseManager {
         try(Statement statement = connection.createStatement()) {
             final String createTableStatement = """
                 CREATE TABLE IF NOT EXISTS players (
-                    simulation_player_id BIGINT PRIMARY KEY AUTO_INCREMENT, 
+                    simulation_player_id BIGSERIAL PRIMARY KEY, 
                     simulation_id BIGINT NOT NULL,
                     player_position INT NOT NULL,
                     
@@ -92,7 +93,7 @@ public class DatabaseManager {
         try(Statement statement = connection.createStatement()) {
             final String createTableStatement = """
                 CREATE TABLE IF NOT EXISTS community_cards (
-                    community_cards_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                    community_cards_id BIGSERIAL PRIMARY KEY,
                     simulation_id BIGINT NOT NULL,
                     
                     flop_1_rank VARCHAR(10),
@@ -124,7 +125,7 @@ public class DatabaseManager {
         try(Statement statement = connection.createStatement()) {
             final String createTableStatement = """
                 CREATE TABLE IF NOT EXISTS outcomes (
-                    outcome_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                    outcome_id BIGSERIAL PRIMARY KEY,
                     simulation_id BIGINT NOT NULL,
                     simulation_player_id BIGINT NOT NULL,
                     
@@ -144,7 +145,7 @@ public class DatabaseManager {
                     best_card_5_suit VARCHAR(10),
                     
                     FOREIGN KEY (simulation_id) REFERENCES simulations(simulation_id),
-                    FOREIGN KEY (simulation_player_id) REFERENCES simulation_players(simulation_player_id)
+                    FOREIGN KEY (simulation_player_id) REFERENCES players(simulation_player_id)
                 );
                 """;
             statement.execute(createTableStatement);
@@ -162,7 +163,7 @@ public class DatabaseManager {
         try(Statement statement = connection.createStatement()) {
             final String createTableStatement = """
                 CREATE TABLE IF NOT EXISTS features (
-                    feature_id BIGINT PRIMARY KEY AUTO_INCREMENT,
+                    feature_id BIGSERIAL PRIMARY KEY,
                     simulation_id BIGINT NOT NULL,
                     simulation_player_id BIGINT NOT NULL,
                 
@@ -178,7 +179,7 @@ public class DatabaseManager {
                     position INT,
                 
                     FOREIGN KEY (simulation_id) REFERENCES simulations(simulation_id),
-                    FOREIGN KEY (simulation_player_id) REFERENCES simulation_players(simulation_player_id)
+                    FOREIGN KEY (simulation_player_id) REFERENCES players(simulation_player_id)
                 );
                 """;
             statement.execute(createTableStatement);
