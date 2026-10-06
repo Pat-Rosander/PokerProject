@@ -15,6 +15,7 @@ public class FeaturesDAO {
                       long simulationPlayerId,
                       int playerPosition,
                       int playerCount) throws SQLException {
+        // Throw exception if player has invalid hole cards state
         if (player.getHoleCards() == null || player.getHoleCards().size() != 2) {
             throw new IllegalArgumentException("Player must have exactly 2 hole cards");
         }

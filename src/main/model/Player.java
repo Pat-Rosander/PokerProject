@@ -9,15 +9,6 @@ public class Player {
     private String name;
     private ArrayList<Card> holeCards; // main.model.Player has a list of two hole cards
     private HandResult playerResults;
-
-    public Boolean getWinner() {
-        return isWinner;
-    }
-
-    public void setWinner(Boolean winner) {
-        isWinner = winner;
-    }
-
     private Boolean isWinner;
 
     public Player(String name, ArrayList<Card> holeCards) {
@@ -32,7 +23,13 @@ public class Player {
         holeCards = null;
         playerResults = new HandResult(null, null, -1);
     }
+    public Boolean getWinner() {
+        return isWinner;
+    }
 
+    public void setWinner(Boolean winner) {
+        isWinner = winner;
+    }
     //Setter methods
     public void setName (String name) {
         this.name = name;

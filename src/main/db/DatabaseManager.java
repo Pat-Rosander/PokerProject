@@ -64,6 +64,8 @@ public class DatabaseManager {
      */
     public static void createPlayersTable(Connection connection) {
         try(Statement statement = connection.createStatement()) {
+            // NOTE TO SELF: Foreign key is a reference to a parent table (simulation)
+            // Prevents invalid data from being input in child table because the value must exist in the parent table
             final String createTableStatement = """
                 CREATE TABLE IF NOT EXISTS players (
                     simulation_player_id BIGSERIAL PRIMARY KEY, 

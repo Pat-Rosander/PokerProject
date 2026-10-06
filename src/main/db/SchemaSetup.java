@@ -1,7 +1,6 @@
 package main.db;
 
 import java.sql.Connection;
-import main.db.DatabaseManager;
 
 public class SchemaSetup {
     public static void main(String[] args) {
