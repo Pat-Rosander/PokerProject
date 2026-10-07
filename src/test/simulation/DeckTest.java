@@ -1,4 +1,4 @@
-package test;
+package test.simulation;
 
 import main.model.*;
 import main.simulation.PokerSimulation;

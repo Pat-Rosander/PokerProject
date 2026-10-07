@@ -1,6 +1,6 @@
 package main.model;
 
-import main.service.SimulationPersistenceService;
+import main.service.SimulationPersistence;
 import main.simulation.*;
 
 public class Main {
@@ -9,7 +9,7 @@ public class Main {
 
         PokerSimulation simulation = new PokerSimulation();
         SimulationResults results = simulation.runSimulation(2);
-        SimulationPersistenceService persistenceService = new SimulationPersistenceService();
+        SimulationPersistence persistenceService = new SimulationPersistence();
         persistenceService.saveSimulationResults(results);
 
         for (int i = 0; i < simulation.getPlayers().size(); i++) {

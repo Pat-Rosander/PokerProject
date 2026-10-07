@@ -12,7 +12,7 @@ import main.model.*;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-public class SimulationPersistenceService {
+public class SimulationPersistence {
     private final Connection connection;
     private final SimulationDAO simulationDAO;
     private final PlayerDAO playerDAO;
@@ -20,8 +20,12 @@ public class SimulationPersistenceService {
     private final OutcomesDAO outcomesDAO;
     private final FeaturesDAO featuresDAO;
 
-    public SimulationPersistenceService() throws SQLException {
-        this.connection = DatabaseManager.getConnection();
+    public SimulationPersistence() throws SQLException {
+        this(DatabaseManager.getConnection());
+    }
+
+    public SimulationPersistence(Connection connection) throws SQLException {
+        this.connection = connection;
 
         this.simulationDAO = new SimulationDAO(connection);
         this.playerDAO = new PlayerDAO(connection);

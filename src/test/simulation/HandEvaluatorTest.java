@@ -1,4 +1,4 @@
-package test;
+package test.simulation;
 
 import main.model.Card;
 import main.simulation.*;
