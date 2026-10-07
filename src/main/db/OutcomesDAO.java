@@ -1,6 +1,8 @@
 package main.db;
 
 import main.model.*;
+import main.simulation.HandResult;
+
 import java.sql.*;
 
 public class OutcomesDAO {
@@ -11,6 +13,43 @@ public class OutcomesDAO {
     }
 
     public void save (Player player, long simulationId, long simulationPlayerId) {
+
+        HandResult result  = player.getPlayerResults();
+
+        if (result == null) {
+            throw new IllegalArgumentException(
+                    "Player must have a hand result"
+            );
+        }
+
+        if (result.getRank() == null) {
+            throw new IllegalArgumentException(
+                    "Hand result must have a rank"
+            );
+        }
+
+        if (result.getBestFiveCards() == null ||
+                result.getBestFiveCards().size() != 5) {
+            throw new IllegalArgumentException(
+                    "Hand result must contain exactly 5 best cards"
+            );
+        }
+
+        if (result.getHandStrength() != result.convertHandRankToNum()) {
+            throw new IllegalArgumentException(
+                    "Hand strength does not match hand rank"
+            );
+        }
+
+        for (Card card : result.getBestFiveCards()) {
+
+            if (card == null || card.getRank() == null || card.getSuit() == null) {
+                throw new IllegalArgumentException(
+                        "Card must not be null."
+                );
+            }
+        }
+
         String sql = """
             INSERT INTO outcomes (
                 simulation_id,
@@ -34,12 +73,13 @@ public class OutcomesDAO {
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setLong(1, simulationId);
             ps.setLong(2, simulationPlayerId);
-            ps.setString(3, player.getPlayerResults().getRank().name());
-            ps.setInt(4, player.getPlayerResults().getHandStrength());
+            ps.setString(3, result.getRank().name());
+            ps.setInt(4, result.getHandStrength());
             ps.setBoolean(5, player.getWinner());
 
             int i = 6;
-            for (Card card : player.getPlayerResults().getBestFiveCards()) {
+
+            for (Card card : result.getBestFiveCards()) {
                 ps.setString(i++, card.getRank().name());
                 ps.setString(i++, card.getSuit().name());
             }
