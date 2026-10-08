@@ -1,6 +1,7 @@
 package main.service;
 
 import main.model.Card;
+import main.model.Player;
 import main.simulation.HandRank;
 import main.simulation.PokerSimulation;
 import main.simulation.SimulationResults;
@@ -23,10 +24,14 @@ public class MonteCarloSimulationService {
     public MonteCarloResults runSimulation(MonteCarloScenario scenario) {
 
         int numWins = 0;
-        int numLose = 0;
+        int numLosses = 0;
         int numTies = 0;
 
         Map<HandRank, Integer> heroHandRankDistribution = new EnumMap<>(HandRank.class);
+         // Initialize every rank to 0
+        for (HandRank rank : HandRank.values()) {
+            heroHandRankDistribution.put(rank, 0);
+        }
 
         validateMonteCarloScenario(scenario);
 
@@ -48,7 +53,7 @@ public class MonteCarloSimulationService {
 
             // Remove all known cards before adding random opponents
 
-            for (int i = 1; i < scenario.getNumOpponents(); i++) {
+            for (int i = 1; i <= scenario.getNumOpponents(); i++) {
                 simulation.addRandomPlayer(
                         "opponent" + i
                 );
@@ -56,31 +61,86 @@ public class MonteCarloSimulationService {
 
             SimulationResults trialResults = simulation.runSimulation();
 
-            // TODO
-            // inspect hero
-            // update win/tie/loss
-            // update HandRank distribution
+            // Simulation hero
+
+            Player hero = trialResults.getPlayersList().get(0);
+
+            // Validate hero hole cards
+
+            if (!hero.getHoleCards().equals(scenario.getHeroCards())) {
+                throw new IllegalStateException("Simulation hero cards don't match scenario hero cards");
+            }
+
+            // Did hero win, lose, or tie?
+
+            ArrayList<Player> resultsWinningPlayers = new ArrayList<>(trialResults.getWinningPlayers());
+            int winningPlayersCount = resultsWinningPlayers.size();
+
+            if (resultsWinningPlayers.isEmpty()) {
+                throw new IllegalStateException("Winning players empty");
+            }
+
+            if (resultsWinningPlayers.contains(hero)) {
+                if (resultsWinningPlayers.size() == 1) {
+                    numWins++;
+                } else {
+                    numLosses++;
+                }
+            } else {
+                numLosses++;
+            }
+
+            // Update hand rank distribution
+
+            HandRank heroRank = hero.getPlayerResults().getRank();
+
+            heroHandRankDistribution.merge(
+                    heroRank,
+                    1,
+                    Integer::sum // equivalent to: (existingValue, newValue) -> existingValue + newValue
+                    );
+        }
+
+        int distributedTrials =
+                heroHandRankDistribution.values()
+                        .stream()
+                        .mapToInt(Integer::intValue)
+                        .sum();
+
+        if (distributedTrials != scenario.getNumTrials()) {
+            throw new IllegalStateException(
+                    "Hand rank distribution does not match trial count"
+            );
+        }
+
+        int classifiedTrials =
+                numWins + numLosses + numTies;
+
+        if (classifiedTrials != scenario.getNumTrials()) {
+            throw new IllegalStateException(
+                    "Not every Monte Carlo trial was classified"
+            );
         }
 
         return new MonteCarloResults(
             scenario.getNumTrials(),
                 numWins,
-                numLose,
+                numLosses,
                 numTies,
                 heroHandRankDistribution
         );
     }
 
     private void validateMonteCarloScenario(MonteCarloScenario scenario) {
-        List<Card> scenarioCommunityCards = scenario.getKnownCommunityCards();
-
-        int boardSize = scenarioCommunityCards.size();
-
         if (scenario == null) {
             throw new IllegalArgumentException(
                     "Monte Carlo scenario cannot be null"
             );
         }
+
+        List<Card> scenarioCommunityCards = scenario.getKnownCommunityCards();
+
+        int boardSize = scenarioCommunityCards.size();
 
         if (scenario.getNumTrials() <= 0) {
             throw new IllegalArgumentException(
