@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -265,6 +266,59 @@ class PokerSimulationTest {
                 card(Card.Rank.ACE, Card.Suit.HEART),
                 card(Card.Rank.TWO, Card.Suit.SPADE)
         ), winner.getHoleCards(), "Royal flush should beat lower straight flush");
+    }
+
+    @Test
+    void royalFlushEntirelyOnBoard_allPlayersTie() {
+
+        PokerSimulation simulation =
+                new PokerSimulation();
+
+        simulation.addPlayer(
+                "player1",
+                List.of(
+                        new Card(Card.Rank.TWO, Card.Suit.CLUB),
+                        new Card(Card.Rank.THREE, Card.Suit.DIAMOND)
+                )
+        );
+
+        simulation.setKnownCommunityCards(
+                List.of(
+                        new Card(Card.Rank.ACE, Card.Suit.SPADE),
+                        new Card(Card.Rank.KING, Card.Suit.SPADE),
+                        new Card(Card.Rank.QUEEN, Card.Suit.SPADE),
+                        new Card(Card.Rank.JACK, Card.Suit.SPADE),
+                        new Card(Card.Rank.TEN, Card.Suit.SPADE)
+                )
+        );
+
+        simulation.addRandomPlayer("player2");
+
+        SimulationResults results =
+                simulation.runSimulation();
+
+        assertEquals(2, results.getPlayersList().size());
+
+        assertEquals(
+                2,
+                results.getWinningPlayers().size()
+        );
+
+        assertEquals(
+                HandRank.ROYAL_FLUSH,
+                results.getPlayersList()
+                        .get(0)
+                        .getPlayerResults()
+                        .getRank()
+        );
+
+        assertEquals(
+                HandRank.ROYAL_FLUSH,
+                results.getPlayersList()
+                        .get(1)
+                        .getPlayerResults()
+                        .getRank()
+        );
     }
 
     @Test

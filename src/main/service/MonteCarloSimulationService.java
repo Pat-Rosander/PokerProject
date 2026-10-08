@@ -84,7 +84,7 @@ public class MonteCarloSimulationService {
                 if (resultsWinningPlayers.size() == 1) {
                     numWins++;
                 } else {
-                    numLosses++;
+                    numTies++;
                 }
             } else {
                 numLosses++;
