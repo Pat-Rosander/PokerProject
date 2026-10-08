@@ -39,13 +39,19 @@ public class Deck {
     public Card getNextCard() {
         return this.cards.remove(this.cards.size() - 1);
     }
-    public Boolean containsCard(Card card) {
-        for (int i = 0; i < cards.size(); i++) {
-            if (!cards.contains(card)) {
-                return false;
-            }
+
+    public void removeCard(Card card) {
+        boolean removed = cards.remove(card);
+
+        if (!removed) {
+            throw new IllegalArgumentException(
+                    "Card is not available in deck: " + card
+            );
         }
-        return true;
+    }
+
+    public Boolean containsCard(Card card) {
+        return cards.contains(card);
     }
     public Boolean containsAllCards() {
         if (cards.size() != 52) { // Check deck size

@@ -5,9 +5,7 @@ import main.simulation.HandRank;
 import main.simulation.PokerSimulation;
 import main.simulation.SimulationResults;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * MonteCarloSimulationService
@@ -24,23 +22,48 @@ public class MonteCarloSimulationService {
 
     public MonteCarloResults runSimulation(MonteCarloScenario scenario) {
 
-        int totalTrials;
         int numWins = 0;
         int numLose = 0;
         int numTies = 0;
+
         Map<HandRank, Integer> heroHandRankDistribution = new EnumMap<>(HandRank.class);
 
         validateMonteCarloScenario(scenario);
 
-        for (totalTrials = 0; totalTrials < scenario.getNumTrials(); totalTrials++) {
+        for (int trial = 0; trial < scenario.getNumTrials(); trial++) {
 
+            PokerSimulation simulation = new PokerSimulation();
 
+            // Configure known state
+            // Add fixed hero
+
+            simulation.addPlayer(
+                    "hero",
+                    scenario.getHeroCards()
+                    );
+
+            // Set known board
+
+            simulation.setKnownCommunityCards(scenario.getKnownCommunityCards());
+
+            // Remove all known cards before adding random opponents
+
+            for (int i = 1; i < scenario.getNumOpponents(); i++) {
+                simulation.addRandomPlayer(
+                        "opponent" + i
+                );
+            }
+
+            SimulationResults trialResults = simulation.runSimulation();
+
+            // TODO
+            // inspect hero
+            // update win/tie/loss
+            // update HandRank distribution
         }
 
-
-
         return new MonteCarloResults(
-            totalTrials,
+            scenario.getNumTrials(),
                 numWins,
                 numLose,
                 numTies,
@@ -49,32 +72,50 @@ public class MonteCarloSimulationService {
     }
 
     private void validateMonteCarloScenario(MonteCarloScenario scenario) {
-        ArrayList<Card> scenarioCommunityCards = scenario.getKnownCommunityCards();
+        List<Card> scenarioCommunityCards = scenario.getKnownCommunityCards();
 
-        if (scenarioCommunityCards.size() != 0 &&
-                scenarioCommunityCards.size() != 3 &&
-                scenario.getKnownCommunityCards().size() != 4 &&
-                scenario.getKnownCommunityCards().size() != 5) {
-            throw new IllegalArgumentException("Invalid scenario - community cards must be size 3, 4 or 5");
+        int boardSize = scenarioCommunityCards.size();
+
+        if (scenario == null) {
+            throw new IllegalArgumentException(
+                    "Monte Carlo scenario cannot be null"
+            );
         }
 
-        for (Card card : scenarioCommunityCards) {
-
-            // TODO
-            //  if there are duplicate community card, then throw illegal argument exception
-
+        if (scenario.getNumTrials() <= 0) {
+            throw new IllegalArgumentException(
+                    "Invalid scenario - number of trials must be greater than 0"
+            );
         }
 
-        if (scenario.getNumOpponents() == 0) {
-            throw new IllegalArgumentException("Invalid scenario - number of opponents can't be 0");
+        if (boardSize != 0 &&
+                boardSize != 3 &&
+                boardSize != 4 &&
+                boardSize != 5) {
+            throw new IllegalArgumentException("Invalid scenario - community cards must be size 0, 3, 4 or 5");
+        }
+
+        if (scenario.getNumOpponents() < 1 ||
+                scenario.getNumOpponents() > 9) {
+            throw new IllegalArgumentException("Invalid scenario - opponents must be between 1 and 9");
         }
 
         if (scenario.getHeroCards().size() != 2) {
             throw new IllegalArgumentException("Invalid scenario - number of hero cards must be 2");
         }
 
-        if (scenario.getHeroCards().get(0) == scenario.getHeroCards().get(1)) {
-            throw new IllegalArgumentException("Invalid scenario - hero cards must be unique");
+        Set<Card> knownCards = new HashSet<>();
+
+        for (Card card : scenario.getHeroCards()) {
+            if (!knownCards.add(card)) {
+                throw new IllegalArgumentException("Duplicate card");
+            }
+        }
+
+        for (Card card : scenario.getKnownCommunityCards()) {
+            if (!knownCards.add(card)) {
+                throw new IllegalArgumentException("Duplicate card");
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ package main.simulation;
 import main.model.*;
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PokerSimulation extends HandEvaluator {
     private Deck deck;
@@ -21,13 +22,22 @@ public class PokerSimulation extends HandEvaluator {
 
     public SimulationResults runSimulation(int numPlayers) {
         for (int i = 1; i <= numPlayers; i++) {
-            addPlayer("player" + i);
+            addRandomPlayer("player" + i);
         }
-        dealNextCommunityCard();
+        completeCommunityCard();
         handleWinners();
         results = new SimulationResults(players, winningPlayers, communityCards);
 
         return results;
+    }
+
+    public SimulationResults runSimulation() {
+        // TODO configuration already done for this trial
+
+        completeCommunityCard();
+        handleWinners();
+
+        return new SimulationResults(players, winningPlayers, communityCards);
     }
 
     // Setters
@@ -37,6 +47,20 @@ public class PokerSimulation extends HandEvaluator {
 
     public void setPlayers(ArrayList<Player> players) {
         this.players = players;
+    }
+
+    /**
+     * Use for MonteCarlo to ensure communityCards are removed from deck
+     * @param knownCommunityCards
+     */
+    public void setKnownCommunityCards(List<Card> knownCommunityCards) {
+
+        for (Card card : knownCommunityCards) {
+            deck.removeCard(card);
+        }
+
+        this.communityCards =
+                new ArrayList<>(knownCommunityCards);
     }
 
     public void setCommunityCards(ArrayList<Card> communityCards) {
@@ -64,14 +88,34 @@ public class PokerSimulation extends HandEvaluator {
         return winningPlayers;
     }
 
-    public void addPlayer(String name) {
+    public void addRandomPlayer(String name) {
         String tempName = name;
         ArrayList<Card> tempHoleCards = new ArrayList<>(Arrays.asList(this.deck.getNextCard(), this.deck.getNextCard()));
         players.add(new Player(tempName, tempHoleCards));
     }
 
+    public void addPlayer(String name, List<Card> holeCards) {
+
+        if (holeCards.size() != 2) {
+            throw new IllegalArgumentException(
+                    "Player must have exactly two hole cards"
+            );
+        }
+
+        for (Card card : holeCards) {
+            deck.removeCard(card);
+        }
+
+        players.add(
+                new Player(
+                        name,
+                        new ArrayList<>(holeCards)
+                )
+        );
+    }
+
     // Deal community cards
-    public void dealNextCommunityCard() {
+    public void completeCommunityCard() {
         while (communityCards.size() < 5) {
             this.communityCards.add(this.deck.getNextCard());
         }

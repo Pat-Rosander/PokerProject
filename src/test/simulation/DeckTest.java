@@ -32,9 +32,9 @@ class DeckTest {
     @Test
     @DisplayName("main.simulation.PokerSimulation playerSetup method")
     void playerSetup() {
-        simulation.addPlayer("player1");
-        simulation.addPlayer("player2");
-        simulation.addPlayer("player3");
+        simulation.addRandomPlayer("player1");
+        simulation.addRandomPlayer("player2");
+        simulation.addRandomPlayer("player3");
         deck = simulation.getDeck();
 
         assertEquals(46, deck.size());
@@ -45,9 +45,9 @@ class DeckTest {
     @Test
     @DisplayName("Player getHoleCards test")
     void getHoleCards() {
-        simulation.addPlayer("player1");
-        simulation.addPlayer("player2");
-        simulation.addPlayer("player3");
+        simulation.addRandomPlayer("player1");
+        simulation.addRandomPlayer("player2");
+        simulation.addRandomPlayer("player3");
 
         Player player1 = simulation.getPlayers().get(0);
         assertEquals(2, player1.getHoleCards().size());
@@ -56,9 +56,9 @@ class DeckTest {
     @Test
     @DisplayName("Check that players holeCards are not included in deck")
     void checkIfHoleCardsInDeck() {
-        simulation.addPlayer("player1");
-        simulation.addPlayer("player2");
-        simulation.addPlayer("player3");
+        simulation.addRandomPlayer("player1");
+        simulation.addRandomPlayer("player2");
+        simulation.addRandomPlayer("player3");
         deck = simulation.getDeck();
 
         for (int i = 0; i < simulation.getPlayers().size(); i++) {
