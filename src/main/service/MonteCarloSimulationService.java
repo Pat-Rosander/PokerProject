@@ -74,7 +74,6 @@ public class MonteCarloSimulationService {
             // Did hero win, lose, or tie?
 
             ArrayList<Player> resultsWinningPlayers = new ArrayList<>(trialResults.getWinningPlayers());
-            int winningPlayersCount = resultsWinningPlayers.size();
 
             if (resultsWinningPlayers.isEmpty()) {
                 throw new IllegalStateException("Winning players empty");
